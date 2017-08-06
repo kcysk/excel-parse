@@ -46,7 +46,7 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
             try {
                 excel.transferTo(new File(""));
             } catch (IOException e) {
-                return "error";
+                return error("导入文件获取失败，IO异常");
             }
 
             //执行非任务导入
@@ -55,7 +55,9 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
             //reply
             String uuid = UUID.randomUUID().toString();
             ReplyCache.put(uuid, future);
-            return "success " + uuid;
+            JSONResponse response = success("导入成功");
+            response.setBusinessValue(uuid);
+            return response;
         }
         return "";
     }
@@ -125,5 +127,13 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         return new ModelAndView(viewName);
     }
 
+    protected JSONResponse error(String msg) {
+        return success(msg).setSuccess(Boolean.FALSE);
+    }
 
+    protected JSONResponse success(String msg) {
+        JSONResponse response = new JSONResponse();
+        response.setMsg(msg).setSuccess(Boolean.TRUE);
+        return response;
+    }
 }
