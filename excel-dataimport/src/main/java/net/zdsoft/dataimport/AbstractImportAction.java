@@ -110,7 +110,7 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         } finally {
             ReplyCache.remove(cacheId); // remove之后页面切勿再次取值，否则可能造成状态错误
         }
-        return null;
+        return success("操作成功");
     }
 
     //页面修改之后回调 校验
