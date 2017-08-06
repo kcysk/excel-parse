@@ -42,7 +42,11 @@ public abstract class QImportError {
         if ( errorFiledCache.isEmpty() ) {
             Field[] fields = this.getClass().getDeclaredFields();
             Arrays.stream(fields).forEach(e->{
-                errorFiledCache.put(e.getName(), (ImportFieldError) BeanUtils.getProperty(this, e));
+                try {
+                    errorFiledCache.put(e.getName(), (ImportFieldError) BeanUtils.getProperty(this, e));
+                } catch (Exception e1) {
+
+                }
             });
         }
     }

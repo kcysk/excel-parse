@@ -18,5 +18,4 @@ public @interface ExcelCell {
 
     String defaultValue() default "";
 
-    Valid valid() default @Valid();
 }

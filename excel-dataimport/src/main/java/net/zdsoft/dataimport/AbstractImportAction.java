@@ -115,7 +115,6 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
 
     //页面修改之后回调 校验
     public Object importVerify() {
-
         return null;
     }
 

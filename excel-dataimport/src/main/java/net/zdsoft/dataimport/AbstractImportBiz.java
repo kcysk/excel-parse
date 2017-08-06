@@ -2,6 +2,7 @@ package net.zdsoft.dataimport;
 
 import net.zdsoft.dataimport.parse.ExcelParserFactory;
 import net.zdsoft.dataimport.parse.Parser;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Valid;
@@ -29,13 +30,17 @@ import static net.zdsoft.dataimport.BeanUtils.*;
  * @author shenke
  * @since 2017.07.31
  */
-public abstract class AbstractImportBiz<T extends QImportEntity> {
+public abstract class AbstractImportBiz<T extends QImportEntity>  implements InitializingBean{
 
     private static Map<String,Field> fieldMap;
 
     @Autowired private ExcutorHolder excutorHolder;
 
-    @PostConstruct
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        initAnnotationCache();
+    }
+
     private void initAnnotationCache() {
         Class<T> tClass = getFirstGenericityType(this.getClass());
         List<Field> fields = getAnnotationWithAnnotation(tClass, ExcelCell.class);
@@ -73,6 +78,10 @@ public abstract class AbstractImportBiz<T extends QImportEntity> {
                         objects.add(e);
                     }
                 });
+                reply = new Reply<T>();
+                reply.setErrorObjects(errorObjects);
+                reply.setJavaObjects(objects);
+                reply.setMessage("解析完成");
 
             } catch (FileNotFoundException e) {
                 reply = Reply.buildGlobeErrorReply("excel不存在");
@@ -92,6 +101,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity> {
     public List<T> transferTo(DataSheet dataSheet) {
         List<T> os = new ArrayList<T>(dataSheet.getDataRowList().size());
         for (DataRow dataRow : dataSheet.getDataRowList()) {
+            initDadaCell(dataRow.getDataCellList());
             T t = newBean(getFirstGenericityType(this.getClass()));
             QImportError qImportError = t.createQImportError();
             for (DataCell dataCell : dataRow.getDataCellList()) {
@@ -106,15 +116,21 @@ public abstract class AbstractImportBiz<T extends QImportEntity> {
         return os;
     }
 
+    private void initDadaCell(List<DataCell> dataCells) {
+        dataCells.forEach(e->{
+            e.setFieldName(fieldMap.get(e.getHeader()).getName());
+        });
+    }
+
     //valid 校验
     void checkForValid(T t, String header, QImportError qImportError) {
 
         Field field = fieldMap.get(header);
 
         ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
-        Valid valid = excelCell.valid();
+        Valid valid = field.getAnnotation(Valid.class);
         //空校验
-        if ( valid.notNull() && getFiledValue(t, field) == null ) {
+        if ( valid != null && valid.notNull() && getFiledValue(t, field) == null ) {
             qImportError.error(field.getName(), "[" + excelCell.header() + "]不能为空");
             return ;
         }

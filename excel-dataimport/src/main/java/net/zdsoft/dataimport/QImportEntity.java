@@ -6,5 +6,5 @@ package net.zdsoft.dataimport;
  */
 public interface QImportEntity<Q extends QImportError> {
 
-    <Q extends QImportError> Q createQImportError();
+    Q createQImportError();
 }
