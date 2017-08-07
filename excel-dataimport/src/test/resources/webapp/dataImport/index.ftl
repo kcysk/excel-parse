@@ -9,19 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <!-- bootstrap & fontawesome -->
-    <link rel="stylesheet" href="/css/bootstrap.css" />
+    <link rel="stylesheet" href="${request.contextPath}/webjarsLocator/css/bootstrap.min.css" />
 
     <!-- ace styles -->
-    <link rel="stylesheet" href="${request.contextPath}/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
+    <link rel="stylesheet" href="${request.contextPath}/webjarsLocator/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
 
-    <!--[if lte IE 9]>
-    <link rel="stylesheet" href="${request.contextPath}/css/ace-part2.css" class="ace-main-stylesheet" />
     <![endif]-->
-
-    <!--[if lte IE 9]>
-    <link rel="stylesheet" href="${request.contextPath}/css/ace-ie.css" />
-    <![endif]-->
-    <link rel="stylesheet" href="${request.contextPath}/css/pages.css">
+    <link rel="stylesheet" href="${request.contextPath}/webjarsLocator/css/pages.css">
     <!-- inline styles related to this page -->
 </head>
 
@@ -236,9 +230,7 @@
 <!-- <![endif]-->
 
 <script>
-    $(function(){
 
-    })
 </script>
 
 

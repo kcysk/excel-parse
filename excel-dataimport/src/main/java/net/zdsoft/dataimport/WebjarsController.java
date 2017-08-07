@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.HandlerMapping;
 import org.webjars.WebJarAssetLocator;
+import org.webjars.WebJarAssetLocatorEx;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 public class WebjarsController {
 
-    private final WebJarAssetLocator webJarAssetLocator = new WebJarAssetLocator();
+    private final WebJarAssetLocator webJarAssetLocator = new WebJarAssetLocatorEx();
 
     @ResponseBody
     @RequestMapping("/webjarsLocator/{webJar}/**")
