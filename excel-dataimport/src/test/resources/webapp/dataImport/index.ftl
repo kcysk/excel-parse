@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <!-- bootstrap & fontawesome -->
-    <link rel="stylesheet" href="${request.contextPath}/css/bootstrap.css" />
+    <link rel="stylesheet" href="/css/bootstrap.css" />
 
     <!-- ace styles -->
     <link rel="stylesheet" href="${request.contextPath}/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
@@ -231,13 +231,9 @@
 <!-- basic scripts -->
 
 <!--[if !IE]> -->
-<script src="${request.contextPath}/js/jquery.js"></script>
+<script src="${request.contextPath}/webjarsLocator/jquery/jquery.js"></script>
 
 <!-- <![endif]-->
-
-<!--[if IE]>
-<script src="${request.contextPath}/js/jquery.1x/jquery.js"></script>
-<![endif]-->
 
 <script>
     $(function(){

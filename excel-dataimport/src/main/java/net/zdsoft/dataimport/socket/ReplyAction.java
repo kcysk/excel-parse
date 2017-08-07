@@ -11,8 +11,8 @@ import java.util.concurrent.Future;
  * @author shenke
  * @since 2017.08.04
  */
-@Controller
-@MessageMapping(value = "dataImport")
+//@Controller
+//@MessageMapping(value = "dataImport")
 public class ReplyAction  {
 
     @MessageMapping(value = "status")

@@ -27,9 +27,9 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
     @Autowired protected ExcutorHolder excutorHolder;
 
     @RequestMapping(value = "import/index")
-    public Object importIndex() {
+    public String importIndex() {
 
-        return "";
+        return "dataImport/index";
     }
 
     @ResponseBody

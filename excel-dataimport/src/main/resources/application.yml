@@ -1,16 +1,16 @@
-
+server:
+  port: 8080
 spring:
   freemarker:
+    cache: false
     charset: utf-8
-    template-loader-path: classpath:/webapp
     check-template-location: true
-    suffix: ftl
     content-type: text/html
     expose-request-attributes: true
     expose-session-attributes: true
     request-context-attribute: request
+    template-loader-path: classpath:/webapp
+    enabled: true
   redis:
     port: 6379
-    url: 127.0.0.1
-server:
-  port: 8080
+    url: 127.0.0.
