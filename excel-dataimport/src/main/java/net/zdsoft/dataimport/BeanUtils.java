@@ -38,14 +38,15 @@ public class BeanUtils {
         return getGenericityType(eClass,Integer.MAX_VALUE);
     }
 
-    public static void setProperty(Object obj, String filedName, Object value ) {
+    public static boolean setProperty(Object obj, String filedName, Object value ) {
         try {
             org.apache.commons.beanutils.BeanUtils.setProperty(obj, filedName, value);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            return Boolean.FALSE;
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            return Boolean.FALSE;
         }
+        return Boolean.TRUE;
     }
 
     public static <T> T newBean(Class<T> tClass) {
@@ -90,6 +91,7 @@ public class BeanUtils {
 
     public static Object getFiledValue( Object obj, Field field ) {
         try {
+            field.setAccessible(Boolean.TRUE);
             return field.get(obj);
         } catch (IllegalAccessException e) {
             return null;

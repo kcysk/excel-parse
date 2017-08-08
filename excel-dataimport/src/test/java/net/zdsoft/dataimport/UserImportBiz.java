@@ -1,5 +1,6 @@
 package net.zdsoft.dataimport;
 
+import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.exception.ImportFieldException;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +14,17 @@ import java.util.List;
 public class UserImportBiz extends AbstractImportBiz<User> {
 
     @Override
-    protected void verify(List<User> javaObjects) {
+    protected void verify(User user) {
 
     }
 
     @Override
-    public void importData(List<User> javaObjects) throws ImportFieldException {
-        System.out.println("入库");
+    protected void verify(List<User> os) {
+
+    }
+
+    @Override
+    public void importData(List<User> os) throws ImportFieldException {
+
     }
 }

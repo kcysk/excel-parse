@@ -116,24 +116,30 @@ public class ExcelParser implements Parser {
         switch ( cell.getCellType() ) {
             case Cell.CELL_TYPE_STRING :
                 dataCell.setData(cell.getStringCellValue());
+                dataCell.setType(String.class);
                 break;
             case Cell.CELL_TYPE_NUMERIC:
                 Object value;
                 if ( DateUtil.isCellDateFormatted(cell) ) {
                     value = cell.getDateCellValue();
+                    dataCell.setType(Date.class);
                 } else {
                     value = dataFormatter.formatCellValue(cell);
+                    dataCell.setType(Number.class);
                 }
                 dataCell.setData(value);
                 break;
             case Cell.CELL_TYPE_BLANK:
             case Cell.CELL_TYPE_ERROR:
+                dataCell.setType(Void.class);
                 break;
             case Cell.CELL_TYPE_BOOLEAN:
                 dataCell.setData(cell.getBooleanCellValue());
+                dataCell.setType(Boolean.class);
                 break;
             case Cell.CELL_TYPE_FORMULA:
                 dataCell.setData(cell.getNumericCellValue());
+                dataCell.setType(Number.class);
                 break;
         }
         return dataCell;

@@ -16,6 +16,28 @@ public @interface Valid {
 
     boolean notNull() default false;
 
-    //int length() default Integer.MAX_VALUE;
+    /**
+     * 字符串最大长度
+     * @return
+     */
+    int length() default Integer.MAX_VALUE;
+
+    /**
+     * 非负
+     * @return
+     */
+    boolean nonNegative() default false;
+
+    /**
+     * 整数位长度
+     * @return
+     */
+    int precision() default Integer.MAX_VALUE;
+
+    /**
+     * 小数位长度
+     * @return
+     */
+    int decimal() default 10;
 
 }

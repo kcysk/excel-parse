@@ -3,26 +3,15 @@
 <head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta charset="utf-8" />
-    <title>东莞学生调入调出</title>
+    <title>${title?default("数据导入")}</title>
 
     <meta name="description" content="" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-
-    <!-- bootstrap & fontawesome -->
     <link rel="stylesheet" href="${request.contextPath}/css/bootstrap.css" />
-
+    <link rel="stylesheet" href="${request.contextPath}/css/font-awesome.min.css" />
     <!-- ace styles -->
     <link rel="stylesheet" href="${request.contextPath}/css/ace.css" class="ace-main-stylesheet" id="main-ace-style" />
-
-    <!--[if lte IE 9]>
-    <link rel="stylesheet" href="${request.contextPath}/css/ace-part2.css" class="ace-main-stylesheet" />
-    <![endif]-->
-
-    <!--[if lte IE 9]>
-    <link rel="stylesheet" href="${request.contextPath}/css/ace-ie.css" />
-    <![endif]-->
     <link rel="stylesheet" href="${request.contextPath}/css/pages.css">
-    <!-- inline styles related to this page -->
 </head>
 
 <body>
@@ -60,66 +49,6 @@
                                         <li><a href="">任课信息导入模板.xls</a></li>
                                         <li><a href="">教师信息.xls</a></li>
                                     </ul>
-                                </div>
-                            </div>
-                            <div class="import-step clearfix">
-                                <span class="import-step-num">3、</span>
-                                <div class="import-content">
-                                    <p>选择任课信息相关属性</p>
-                                    <div class="filter clearfix">
-                                        <div class="filter-item">
-                                            <label for="" class="filter-name">学年：</label>
-                                            <div class="filter-content">
-                                                <select class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="2016">2016</option>
-                                                    <option value="2015">2015</option>
-                                                    <option value="2014">2014</option>
-                                                    <option value="2013">2013</option>
-                                                    <option value="2012">2012</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="filter-item">
-                                            <label for="" class="filter-name">学期：</label>
-                                            <div class="filter-content">
-                                                <select class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="2016">2016</option>
-                                                    <option value="2015">2015</option>
-                                                    <option value="2014">2014</option>
-                                                    <option value="2013">2013</option>
-                                                    <option value="2012">2012</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="filter-item">
-                                            <label for="" class="filter-name">考试方式：</label>
-                                            <div class="filter-content">
-                                                <select class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="2016">2016</option>
-                                                    <option value="2015">2015</option>
-                                                    <option value="2014">2014</option>
-                                                    <option value="2013">2013</option>
-                                                    <option value="2012">2012</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="filter-item">
-                                            <label for="" class="filter-name">成绩录入方式：</label>
-                                            <div class="filter-content">
-                                                <select class="form-control">
-                                                    <option value=""></option>
-                                                    <option value="2016">2016</option>
-                                                    <option value="2015">2015</option>
-                                                    <option value="2014">2014</option>
-                                                    <option value="2013">2013</option>
-                                                    <option value="2012">2012</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
