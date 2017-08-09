@@ -1,6 +1,7 @@
 package net.zdsoft.dataimport.parse;
 
 import net.zdsoft.dataimport.BeanUtils;
+import net.zdsoft.dataimport.exception.ImportParseException;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,7 +33,8 @@ public class ExcelParser implements Parser {
     private static Logger logger = LoggerFactory.getLogger(ExcelParser.class);
 
     @Override
-    public DataExcel parse(InputStream inputStream) {
+    public DataExcel parse(InputStream inputStream) throws ImportParseException {
+        long parseStart = System.currentTimeMillis();
         Workbook workbook = read2Workbook(inputStream);
         if ( workbook == null ) {
             return null;
@@ -43,10 +45,11 @@ public class ExcelParser implements Parser {
             DataSheet dataSheet = parseForDataSheet(workbook.getSheetAt(i));
             dataExcel.addDataSheetIfNotNull(dataSheet);
         }
+        logger.debug("解析Excel耗时：{}s", (System.currentTimeMillis() - parseStart)/1000);
         return dataExcel;
     }
 
-    private Workbook read2Workbook(InputStream inputStream) {
+    private Workbook read2Workbook(InputStream inputStream) throws ImportParseException {
         Workbook workbook = null;
         try {
             workbook = new HSSFWorkbook(inputStream);
@@ -54,7 +57,8 @@ public class ExcelParser implements Parser {
             try {
                 workbook = new XSSFWorkbook(inputStream);
             } catch (IOException e1) {
-                logger.error("文件类型错误 {}", e);
+                //logger.error("解析");
+                throw new ImportParseException(e);
             }
         }
         return workbook;

@@ -1,6 +1,7 @@
 package net.zdsoft.dataimport;
 
 import net.zdsoft.ApplicationT;
+import net.zdsoft.UserImportBiz;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,8 @@ import java.util.concurrent.Future;
 @AutoConfigureMockMvc
 public class UserImportTest {
 
-    @Autowired UserImportBiz userImportBiz;
+    @Autowired
+    UserImportBiz userImportBiz;
 
     @Test
     public void testImport() {

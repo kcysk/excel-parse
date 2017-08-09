@@ -1,8 +1,15 @@
 package net.zdsoft.dataimport;
 
+import net.zdsoft.dataimport.exception.ImportParseException;
+import net.zdsoft.dataimport.verify.AnnotationVerify;
 import net.zdsoft.dataimport.parse.ExcelParserFactory;
 import net.zdsoft.dataimport.parse.Parser;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.assertj.core.util.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import net.zdsoft.dataimport.annotation.ExcelCell;
@@ -11,8 +18,9 @@ import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.core.DataExcel;
 import net.zdsoft.dataimport.core.DataRow;
 import net.zdsoft.dataimport.core.DataSheet;
-import net.zdsoft.dataimport.exception.ImportFieldException;
+import net.zdsoft.dataimport.exception.ImportBusinessException;
 import net.zdsoft.dataimport.process.ExcutorHolder;
+import org.springframework.context.ApplicationContext;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -33,19 +42,49 @@ import static net.zdsoft.dataimport.BeanUtils.*;
  */
 public abstract class AbstractImportBiz<T extends QImportEntity>  implements InitializingBean{
 
+    protected Logger logger = LoggerFactory.getLogger(AbstractImportBiz.class);
+
     private static Map<String,Field> classCache;
 
     @Autowired private ExcutorHolder excutorHolder;
+    @Autowired private ApplicationContext applicationContext;
+
+    private List<AnnotationVerify> annotationVerifies = Lists.newArrayList();
+
+    private AnnotationVerify<Valid> validAnnotationVerify;
 
     @Override
     public void afterPropertiesSet() throws Exception {
         initAnnotationCache();
+        initAnnotationVerifyInterceptors();
+    }
+
+    public void setValidAnnotationVerify(AnnotationVerify<Valid> validAnnotationVerify) {
+        this.validAnnotationVerify = validAnnotationVerify;
     }
 
     private void initAnnotationCache() {
         Class<T> tClass = getFirstGenericityType(this.getClass());
         List<Field> fields = getAnnotationWithAnnotation(tClass, ExcelCell.class);
         classCache = fields.stream().collect(Collectors.toMap(field -> field.getAnnotation(ExcelCell.class).header(), field->field));
+    }
+
+    private void initAnnotationVerifyInterceptors() {
+        Map<String, AnnotationVerify> annotationVerifyInterceptorMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext,AnnotationVerify.class, Boolean.TRUE, Boolean.TRUE);
+        if ( annotationVerifyInterceptorMap != null && annotationVerifyInterceptorMap.size() > 0 ) {
+            annotationVerifies.addAll(annotationVerifyInterceptorMap.values());
+        }
+        //默认校验
+        if ( this.validAnnotationVerify == null ) {
+            annotationVerifies.add(new ValidAnnotationVerify());
+        }
+        annotationVerifies.sort(Comparator.comparingInt(AnnotationVerify::order));
+    }
+
+    private void initDadaCell(List<DataCell> dataCells) {
+        dataCells.forEach(e->{
+            e.setFieldName(classCache.get(e.getHeader()).getName());
+        });
     }
 
     Future<Reply<T>> execute(String filePath) {
@@ -58,16 +97,20 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
             }
             File excel = new File(filePath);
             if ( !excel.exists() ) {
+                logger.error("文件不存在");
                 reply = Reply.<T>buildGlobeErrorReply("excel不存在");
                 return reply;
             }
+            long parseStart = System.currentTimeMillis();
             try {
                 DataExcel dataExcel = parser.parse(new FileInputStream(excel));
                 List<DataSheet> dataSheetList = dataExcel.getDataSheetList();
                 if ( dataSheetList.isEmpty() ) {
+                    logger.error("导入Excle中无数据");
                     return Reply.buildGlobeErrorReply("导入Excel不包含数据");
                 }
                 List<T> objects = new ArrayList<>();
+                List<T> correctObjects = new ArrayList<>();
                 List<T> errorObjects = new ArrayList<>();
                 for (DataSheet dataSheet : dataSheetList) {
                     objects.addAll(transferTo(dataSheet));
@@ -76,17 +119,22 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                     if ( e.createQImportError().isHasError() ) {
                         errorObjects.add(e);
                     } else {
-                        objects.add(e);
+                        correctObjects.add(e);
                     }
                 });
                 reply = new Reply<T>();
                 reply.setErrorObjects(errorObjects);
-                reply.setJavaObjects(objects);
+                reply.setJavaObjects(correctObjects);
                 reply.setMessage("解析完成");
+                logger.debug("解析转换耗时：{}s", (System.currentTimeMillis() - parseStart)/1000);
 
             } catch (FileNotFoundException e) {
                 reply = Reply.buildGlobeErrorReply("excel不存在");
+            } catch (ImportParseException e) {
+                reply = Reply.buildGlobeErrorReply(e.getMessage());
             }
+            //更新生成时间，延长存活时间
+            reply.setCreationTime(System.currentTimeMillis());
             return reply;
         });
     }
@@ -110,45 +158,28 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                     qImportError.error(dataCell.getFieldName(), "赋值转换失败");
                 }
                 qImportError.value(dataCell.getFieldName(), dataCell.getData());
+                checkForValid(t,dataCell.getHeader());
             }
             os.add(t);
         }
         return os;
     }
 
-    private void initDadaCell(List<DataCell> dataCells) {
-        dataCells.forEach(e->{
-            e.setFieldName(classCache.get(e.getHeader()).getName());
-        });
-    }
-
-    //valid 校验
-    public void checkForValid(T t, String header) {
-
+    /**
+     * 注解校验
+     * @param t
+     * @param header
+     */
+    void checkForValid(T t, String header) {
         Field field = classCache.get(header);
-
-        ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
-        Valid valid = field.getAnnotation(Valid.class);
-        if ( valid == null || t.createQImportError().isHasError() ) {
-            return ;
-        }
         Object value = getFiledValue(t, field);
-        //空校验
-        if (valid.notNull() && value == null ) {
-            t.createQImportError().error(field.getName(), "[" + excelCell.header() + "] 不能为空");
-            return ;
-        }
-
-        if ( field.getType().equals(String.class) ) {
-            if ( StringUtils.length(String.class.cast(value)) > valid.length() ) {
-                t.createQImportError().error(field.getName(), error("[{}] 超过最大长度 [{}]", excelCell.header(), valid.length() ) );
+        //扩展注解校验 调用注解扩展
+        for (AnnotationVerify e : annotationVerifies) {
+            boolean ok = e.verify(value, getAnnotationByHeader(header, getFirstGenericityType(e.getClass())), t.createQImportError(), field );
+            if ( ok ) {
+                break;
             }
         }
-
-
-        //其他校验
-
-        //用户扩展校验
     }
 
     protected String error(String msg, Object ... values) {
@@ -158,36 +189,69 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         return msg;
     }
 
-    public boolean verifyEveryHeader(Object value, String header, QImportError error) {
-        Field field = classCache.get(header);
-
-        return true;
-    }
-
     protected <A extends Annotation> A getAnnotationByHeader(String header, Class<A> annotation) {
         Field field = classCache.get(header);
         return field.getAnnotation(annotation);
     }
 
     /**
-     *  单值业务校验
-     * @param t
-     * @return
-     */
-    protected abstract void verify(T t);
-
-    /**
-     * 业务校验
-     * @param os
-     */
-    protected abstract void verify(List<T> os);
-
-    /**
      * 执行业务操作(保存等)，子类必须重写该方法
      *
      * @param os
-     * @throws ImportFieldException
+     * @throws ImportBusinessException
      */
-    public abstract void importData(List<T> os) throws ImportFieldException;
+    public abstract void importData(List<T> os) throws ImportBusinessException;
 
+    class ValidAnnotationVerify implements AnnotationVerify<Valid> {
+
+        @Override
+        public boolean verify(Object value, Valid valid, QImportError error, Field field) {
+
+            ExcelCell excelCell = field.getAnnotation(ExcelCell.class);
+            if ( valid == null || error.isHasError() ) {
+                return Boolean.TRUE;
+            }
+            //空校验
+            if ( valid.notNull() && value == null ) {
+                logger.error("[{}]不能为空", excelCell.header());
+                error.error(field.getName(), "[" + excelCell.header() + "] 不能为空");
+                return Boolean.TRUE;
+            }
+            if ( value == null ) {
+                return Boolean.TRUE;
+            }
+
+            if ( field.getType().equals(String.class) ) {
+                if ( StringUtils.length(String.class.cast(value)) > valid.length() ) {
+                    logger.error("[{}:{}] 超过最大长度 [{}]", excelCell.header(), value, valid.length() );
+                    error.error(field.getName(), error("[{}] 超过最大长度 [{}]", excelCell.header(), valid.length() ) );
+                }
+            } else if ( isNumer(field.getType()) ){
+                Number number = NumberUtils.toDouble(value.toString());
+                if ( valid.nonNegative() && number.doubleValue() < 0 ) {
+                    logger.error("[{}] 不能为负数 [{}]", excelCell.header(), value);
+                    error.error(field.getName(), error("[{}] 不能为负数 [{}]", excelCell.header(), value) );
+                }
+                //小数校验
+                if ( field.getType().equals(Double.class) || field.getType().equals(Float.class) ) {
+                    String pre = value.toString().substring(0,value.toString().indexOf("."));
+                    String dec = value.toString().substring(value.toString().indexOf(".") + 1);
+                    if ( pre.length() > valid.precision() ) {
+                        logger.error("[{}] 整数位超过最大值[{}]位", excelCell.header(), valid.precision());
+                        error.error(field.getName(), error("[{}] 整数位超过最大值[{}]位", excelCell.header(), valid.precision() ) );
+                    }
+                    if ( dec.length() > valid.decimal() ) {
+                        logger.error("[{}] 小数位超过长度[{}]位", excelCell.header(), valid.decimal());
+                        error.error(field.getName(), error("[{}] 小数位超过长度[{}]位", excelCell.header(), valid.decimal() ) );
+                    }
+                }
+            }
+            return Boolean.TRUE;
+        }
+
+        @Override
+        public int order() {
+            return 1;
+        }
+    }
 }

@@ -7,20 +7,20 @@ import lombok.Getter;
  * @author shenke
  * @since 2017.08.01
  */
-public class ImportFieldException extends Exception {
+public class ImportBusinessException extends Exception {
 
     @Getter private String field;
     @Getter private int index;
 
-    public ImportFieldException() {
+    public ImportBusinessException() {
         super();
     }
 
-    public ImportFieldException(String message) {
+    public ImportBusinessException(String message) {
         super(message);
     }
 
-    public ImportFieldException(String message, String field, int index) {
+    public ImportBusinessException(String message, String field, int index) {
         this(message);
         this.field = field;
         this.index = index;

@@ -97,4 +97,8 @@ public class BeanUtils {
             return null;
         }
     }
+
+    public static boolean isNumer(Class type) {
+        return newBean(type) instanceof Number;
+    }
 }

@@ -1,6 +1,7 @@
 package net.zdsoft.dataimport.parse;
 
 import net.zdsoft.dataimport.core.DataExcel;
+import net.zdsoft.dataimport.exception.ImportParseException;
 
 import java.io.InputStream;
 
@@ -15,6 +16,6 @@ public interface Parser {
      * @param inputStream
      * @return
      */
-    DataExcel parse(InputStream inputStream);
+    DataExcel parse(InputStream inputStream) throws ImportParseException;
 
 }

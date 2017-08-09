@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Valid {
 
+
     boolean notNull() default false;
 
     /**
@@ -38,6 +39,8 @@ public @interface Valid {
      * 小数位长度
      * @return
      */
-    int decimal() default 10;
+    int decimal() default Integer.MAX_VALUE;
 
+
+    String[] format() default "";
 }

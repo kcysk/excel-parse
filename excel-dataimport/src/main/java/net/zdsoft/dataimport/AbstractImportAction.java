@@ -115,7 +115,11 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
 
     //页面修改之后回调 校验
     @RequestMapping(value = "import/verify")
-    public Object importVerify(Object value, String header) {
+    public Object importVerify(T value, String header) {
+        getImportBiz().checkForValid(value, header);
+        if ( value.createQImportError().isHasError() ) {
+            //错误
+        }
         return null;
     }
 

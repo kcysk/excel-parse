@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author shenke
@@ -24,11 +25,11 @@ public abstract class QImportError {
         return new ImportFieldError(name);
     }
 
-    protected QImportError error(final String name, String error) {
+    protected QImportError error(final String name, String ... error) {
         initCache();
         hasError = Boolean.TRUE;
         ImportFieldError importFieldError = errorFiledCache.get(name);
-        importFieldError.addError(error);
+        importFieldError.addErrors(Arrays.stream(error).collect(Collectors.toList()));
         return this;
     }
 
@@ -66,6 +67,11 @@ public abstract class QImportError {
         public void addError(String error) {
             setHasError(Boolean.TRUE);
             this.errors.add(error);
+        }
+
+        public void addErrors(List<String> errors){
+            this.errors.addAll(errors);
+            setHasError(Boolean.TRUE);
         }
     }
 

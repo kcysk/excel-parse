@@ -16,6 +16,11 @@ public class Reply<T extends QImportEntity> {
     @Getter @Setter private String globeError;
     @Getter @Setter private List<T> javaObjects;
     @Getter @Setter private List<T> errorObjects;
+    @Getter @Setter private Long creationTime;
+
+    public Reply() {
+        this.creationTime = System.currentTimeMillis();
+    }
 
     public static <O extends QImportEntity> Reply<O> buildGlobeErrorReply(String error) {
         Reply<O> reply = new Reply<O>();
