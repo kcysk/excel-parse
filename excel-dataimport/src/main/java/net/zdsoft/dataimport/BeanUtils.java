@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
  * @author shenke
  * @since 2017.07.31
  */
-public class BeanUtils {
+class BeanUtils {
 
-    public static  <O,E> Class<O> getGenericityType(Class<E> eClass, int number) {
+    static  <O,E> Class<O> getGenericityType(Class<E> eClass, int number) {
         Type type = eClass.getGenericSuperclass();
         Type[] types = ((ParameterizedType)type).getActualTypeArguments();
         if ( ArrayUtils.isEmpty(types) ) {
@@ -30,15 +30,15 @@ public class BeanUtils {
         return (Class<O>) types[number-1];
     }
 
-    public static <O,E> Class<O> getFirstGenericityType(Class<E> eClass) {
+    static <O,E> Class<O> getFirstGenericityType(Class<E> eClass) {
         return getGenericityType(eClass, 1);
     }
 
-    public static <O,E> Class<O> getLastGenericityType(Class<E> eClass) {
+    static <O,E> Class<O> getLastGenericityType(Class<E> eClass) {
         return getGenericityType(eClass,Integer.MAX_VALUE);
     }
 
-    public static boolean setProperty(Object obj, String filedName, Object value ) {
+    static boolean setProperty(Object obj, String filedName, Object value ) {
         try {
             org.apache.commons.beanutils.BeanUtils.setProperty(obj, filedName, value);
         } catch (IllegalAccessException e) {
@@ -49,7 +49,7 @@ public class BeanUtils {
         return Boolean.TRUE;
     }
 
-    public static <T> T newBean(Class<T> tClass) {
+    static <T> T newBean(Class<T> tClass) {
         try {
             return tClass.newInstance();
         } catch (Exception e) {
@@ -58,7 +58,7 @@ public class BeanUtils {
         return null;
     }
 
-    public static Object getProperty(Object obj, Field field) {
+    static Object getProperty(Object obj, Field field) {
         try {
             return field.get(obj);
         } catch (IllegalAccessException e) {
@@ -67,7 +67,7 @@ public class BeanUtils {
         return null;
     }
 
-    public static <T> T[] toArray(List<T> os, Class<T> tClass) {
+    static <T> T[] toArray(List<T> os, Class<T> tClass) {
         T[] array = null;
         if ( os == null ) {
             array = (T[])Array.newInstance(tClass, 0);
@@ -77,19 +77,19 @@ public class BeanUtils {
         return os.toArray(array);
     }
 
-    public static <T> boolean isEmpty(T[] ts) {
+    static <T> boolean isEmpty(T[] ts) {
         return ts == null ? Boolean.TRUE : ts.length == 0;
     }
-    public static <T> boolean isNotEmpty(T[] ts) {
+    static <T> boolean isNotEmpty(T[] ts) {
         return ts == null ? Boolean.FALSE : ts.length > 0;
     }
 
-    public static List<Field> getAnnotationWithAnnotation(Class clazz, Class<? extends Annotation> annotation) {
+    static List<Field> getAnnotationWithAnnotation(Class clazz, Class<? extends Annotation> annotation) {
         Field[] fields = clazz.getDeclaredFields();
         return Arrays.stream(fields).filter(e->e.getAnnotationsByType(annotation)!=null).collect(Collectors.toList());
     }
 
-    public static Object getFiledValue( Object obj, Field field ) {
+    static Object getFiledValue( Object obj, Field field ) {
         try {
             field.setAccessible(Boolean.TRUE);
             return field.get(obj);
@@ -98,7 +98,7 @@ public class BeanUtils {
         }
     }
 
-    public static boolean isNumer(Class type) {
+    static boolean isNumer(Class type) {
         return newBean(type) instanceof Number;
     }
 }
