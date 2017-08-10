@@ -15,5 +15,6 @@ public class ImportRecord {
     @Getter @Setter private String originFilename;
     @Getter @Setter private boolean done;
     @Getter @Setter private String cacheId;
+    @Getter @Setter private String state;
 
 }

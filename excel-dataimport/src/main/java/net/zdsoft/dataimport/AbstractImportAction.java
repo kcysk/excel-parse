@@ -1,9 +1,11 @@
 package net.zdsoft.dataimport;
 
 import net.zdsoft.dataimport.cache.ReplyCache;
+import net.zdsoft.dataimport.cache.ViewCache;
 import net.zdsoft.dataimport.process.ExcutorHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -33,6 +37,7 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
     protected Logger logger = LoggerFactory.getLogger(AbstractImportAction.class);
 
     @Autowired protected ExcutorHolder excutorHolder;
+    @Autowired private ViewCache viewCache;
 
     @RequestMapping(value = "import/index")
     public Object importIndex() {
@@ -155,8 +160,14 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public Object importList() {
-        return null;
+    @RequestMapping(value = "import/list/page")
+    public Object importList(String userId) {
+        List<ImportRecord> importRecordList = viewCache.getFromCache(userId);
+        Optional<List<ImportRecord>> records = Optional.ofNullable(importRecordList);
+        records.orElse(Lists.newArrayList()).forEach(importRecord -> {
+            importRecord.setState(importRecord.isDone() ? ImportState.DONE.getState() : ReplyCache.getState(importRecord.getCacheId()).getState() );
+        });
+        return createMV("").addObject("importRecords", importRecordList);
     }
 
     protected abstract AbstractImportBiz getImportBiz();

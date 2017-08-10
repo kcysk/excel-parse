@@ -1,6 +1,7 @@
 package net.zdsoft.dataimport.cache;
 
 import com.google.common.collect.Maps;
+import net.zdsoft.dataimport.ImportState;
 
 import java.util.Map;
 import java.util.TimerTask;
@@ -29,6 +30,23 @@ public class ReplyCache {
 
     public static Future get(String key) {
         return cache.get(key);
+    }
+
+    public static ImportState getState(String key) {
+        Future future;
+        if ( (future = get(key)) == null ) {
+            return ImportState.WAIT;
+        }
+        if ( future.isDone() ) {
+            try {
+                if (future.get() != null) {
+                    return ImportState.DONE;
+                }
+            } catch (Exception e){
+                return ImportState.ERROR;
+            }
+        }
+        return ImportState.ING;
     }
 
     public static void remove(String key) {
