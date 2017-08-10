@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
@@ -49,15 +50,16 @@ public class FreemarkerEx {
         return redisCacheManager;
     }
 
-    @Bean
-    public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate redisTemplate = new RedisTemplate();
+    @Bean(name = "importRedisTemplate")
+    public ImportRedisTemplate<String,Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        ImportRedisTemplate redisTemplate = new ImportRedisTemplate();
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
         RedisSerializer redisSerializer = new SpringCacheSerializer();
         redisTemplate.setKeySerializer(stringRedisSerializer);
         redisTemplate.setValueSerializer(redisSerializer);
         redisTemplate.setHashKeySerializer(redisSerializer);
         redisTemplate.setHashValueSerializer(redisSerializer);
+        ((JedisConnectionFactory)connectionFactory).setDatabase(7);
         redisTemplate.setConnectionFactory(connectionFactory);
         return redisTemplate;
     }
@@ -79,5 +81,9 @@ public class FreemarkerEx {
             }
             return obj;
         }
+    }
+
+    public static class ImportRedisTemplate<K,V> extends RedisTemplate<K,V> {
+
     }
 }

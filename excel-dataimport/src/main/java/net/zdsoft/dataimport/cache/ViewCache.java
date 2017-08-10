@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -19,7 +20,8 @@ import java.util.List;
 @Component
 public class ViewCache {
 
-    @Autowired private RedisTemplate redisTemplate;
+    @Resource(name = "importRedisTemplate")
+    private RedisTemplate redisTemplate;
 
     static final String KEY = "key_import_record_";
 
