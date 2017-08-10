@@ -1,6 +1,7 @@
 package net.zdsoft.dataimport.cache;
 
 import com.alibaba.fastjson.JSON;
+import net.zdsoft.dataimport.ImportActionAdvice;
 import net.zdsoft.dataimport.ImportRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -39,7 +40,7 @@ public class ViewCache {
     private String getCurrentAction() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if ( requestAttributes != null ) {
-            return requestAttributes.getRequest().getAttribute("actionName").toString();
+            return requestAttributes.getRequest().getAttribute(ImportActionAdvice.ACTION_NAME).toString();
         }
         return "";
     }

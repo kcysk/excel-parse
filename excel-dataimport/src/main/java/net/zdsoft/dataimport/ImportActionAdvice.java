@@ -18,12 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 @Component
 public class ImportActionAdvice {
 
+    public static final String ACTION_NAME = "actionName";
+
     @After(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
     public void execute(JoinPoint joinPoint) {
         Class<?> action = joinPoint.getTarget().getClass();
         RequestMapping requestMapping = action.getAnnotation(RequestMapping.class);
         String[] values = requestMapping.value();
-        getCurrentRequest().setAttribute("actionName", values[0]);
+        getCurrentRequest().setAttribute(ACTION_NAME, values[0]);
     }
 
     private HttpServletRequest getCurrentRequest() {
