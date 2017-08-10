@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  * @author shenke
  * @since 2017.08.01
  */
-public abstract class AbstractImportAction<T extends QImportEntity> {
+public abstract class AbstractImportAction {
 
     protected Logger logger = LoggerFactory.getLogger(AbstractImportAction.class);
 
@@ -65,7 +65,7 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
                 throw new RuntimeException(e);
             }
             //执行非任务导入
-            Future<Reply<T>> future = getImportBiz().execute(newFile);
+            Future<Reply> future = getImportBiz().execute(newFile);
             //reply
             ReplyCache.put(uuid, future);
             JSONResponse response = success("导入成功");
@@ -101,10 +101,10 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
 
     @RequestMapping(value = "import/viewData")
     public Object importViewData(@RequestParam("cacheId") String cacheId) {
-        Future<Reply<T>> future = ReplyCache.get(cacheId);
+        Future<Reply> future = ReplyCache.get(cacheId);
         ModelAndView mv = createMV("/dataImport/viewData");
         try {
-            Reply<T> reply = future.get();
+            Reply reply = future.get();
             mv.addObject("headers", reply.getHeaders());
             mv.addObject("errorObjects", reply.getErrorObjects());
             mv.addObject("javaObjects", reply.getJavaObjects());
@@ -135,9 +135,9 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
 
     //页面修改之后回调 校验
     @RequestMapping(value = "import/verify")
-    public Object importVerify(T value, String header) {
-        getImportBiz().checkForValid(value, header);
-        if ( value.createQImportError().isHasError() ) {
+    public Object importVerify(Object value, String header) {
+        getImportBiz().checkForValid((QImportEntity) value, header);
+        if ( ((QImportEntity)value).createQImportError().isHasError() ) {
             //错误 FIXME 错误数据
             return error("校验失败");
         }
