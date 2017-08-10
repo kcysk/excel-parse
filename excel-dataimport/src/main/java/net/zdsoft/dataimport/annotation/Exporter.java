@@ -13,15 +13,32 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
+@ImportAnnotation
 public @interface Exporter {
+
+    String HEADER = "header";
+    String EXAMPLE = "example";
+    String CHECKED = "checked";
+    String DESCRIPTION = "description";
+
 
     String example() default "";
 
+    /**
+     * 微代码和selectItems 二者选其一
+     * @return
+     */
     String mcode() default "";
 
     int displayOrder() default 0;
 
     String[] selectItems() default "";
 
-    boolean defaultChecked() default false;
+    /**
+     * 导出模板时默认选中
+     * @return
+     */
+    boolean defaultChecked() default true;
+
+    String description() default "";
 }

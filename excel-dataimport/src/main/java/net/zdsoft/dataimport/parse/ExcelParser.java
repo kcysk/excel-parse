@@ -1,6 +1,9 @@
 package net.zdsoft.dataimport.parse;
 
-import net.zdsoft.dataimport.BeanUtils;
+import net.zdsoft.dataimport.core.DataCell;
+import net.zdsoft.dataimport.core.DataExcel;
+import net.zdsoft.dataimport.core.DataRow;
+import net.zdsoft.dataimport.core.DataSheet;
 import net.zdsoft.dataimport.exception.ImportParseException;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -13,10 +16,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import net.zdsoft.dataimport.core.DataCell;
-import net.zdsoft.dataimport.core.DataExcel;
-import net.zdsoft.dataimport.core.DataRow;
-import net.zdsoft.dataimport.core.DataSheet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +71,7 @@ public class ExcelParser implements Parser {
         int rowNumber = sheet.getPhysicalNumberOfRows();
 
         for ( int i=0; i<rowNumber; i++) {
-            DataRow dataRow = parseForDataRow(sheet.getRow(i), BeanUtils.toArray(dataSheet.getHeaders(), String.class));
+            DataRow dataRow = parseForDataRow(sheet.getRow(i), i == 0 ? null : dataSheet.getHeaders().toArray(new String[0]) );
             if ( i == 0) {
                 List<String> headers = new ArrayList<String>();
                 for (DataCell dataCell : dataRow.getDataCellList()) {
@@ -103,7 +102,7 @@ public class ExcelParser implements Parser {
             if ( dataCell.getData() != null ) {
                 emptyRow = Boolean.FALSE;
             }
-            if ( BeanUtils.isNotEmpty(headers) ) {
+            if ( headers != null && headers.length > 0 ) {
                 dataCell.setHeader(headers[i]);
             }
             dataRow.addDataCellIfNotnull(dataCell);

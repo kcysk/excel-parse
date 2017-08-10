@@ -34,18 +34,18 @@ public class UserImportTest {
     @Test
     public void testImport() {
         String path = this.getClass().getResource("/conf/dd.xls").getPath();
-        Future<Reply<User>> replyFuture = userImportBiz.execute(path);
-        System.out.println(replyFuture.isDone());
-        try {
-            Thread.sleep(1000);
-            Reply<User> reply = replyFuture.get();
-            reply.getJavaObjects().forEach(e-> System.out.println(e.getUserName()));
-            reply.getErrorObjects().forEach(e-> System.out.println(e.getSex()));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        //Future<Reply<User>> replyFuture = userImportBiz.execute(path);
+        //System.out.println(replyFuture.isDone());
+        //try {
+        //    Thread.sleep(1000);
+        //    Reply<User> reply = replyFuture.get();
+        //    reply.getJavaObjects().forEach(e-> System.out.println(e.getUserName()));
+        //    reply.getErrorObjects().forEach(e-> System.out.println(e.getSex()));
+        //} catch (InterruptedException e) {
+        //    e.printStackTrace();
+        //} catch (ExecutionException e) {
+        //    e.printStackTrace();
+        //}
     }
 
     @Test

@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
+
 /**
  * @author shenke
  * @since 17-8-6 下午7:43
  */
-public class JSONResponse {
+public class JSONResponse{
 
     @Getter private String msg;
     @Getter private boolean success;

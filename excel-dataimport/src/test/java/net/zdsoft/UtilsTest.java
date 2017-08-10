@@ -1,6 +1,5 @@
 package net.zdsoft;
 
-import net.zdsoft.dataimport.BeanUtils;
 import net.zdsoft.dataimport.User;
 import org.junit.Test;
 

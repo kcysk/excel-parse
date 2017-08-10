@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 /**
  * 这种扩展有些问题
@@ -19,8 +20,10 @@ public class WebJarAssetLocatorEx extends WebJarAssetLocator {
 
     private Logger logger = LoggerFactory.getLogger(WebJarAssetLocatorEx.class);
 
+    protected SortedMap<String, String> fullPathIndex;
+
     public WebJarAssetLocatorEx() {
-        super();
+        fullPathIndex = getFullPathIndex(Pattern.compile(".*"), WebJarAssetLocator.class.getClassLoader());
     }
 
     @Override
@@ -43,6 +46,7 @@ public class WebJarAssetLocatorEx extends WebJarAssetLocator {
         final SortedMap<String, String> fullPathTail = pathIndex.tailMap(reversePartialPath);
 
         if (fullPathTail.size() == 0) {
+            logger.error("{} not found", partialPath);
             throwNotFoundException(partialPath);
         }
 

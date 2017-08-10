@@ -2,19 +2,28 @@ package net.zdsoft.dataimport;
 
 import net.zdsoft.dataimport.cache.ReplyCache;
 import net.zdsoft.dataimport.process.ExcutorHolder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * @author shenke
@@ -27,70 +36,77 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
     @Autowired protected ExcutorHolder excutorHolder;
 
     @RequestMapping(value = "import/index")
-    public String importIndex() {
+    public Object importIndex() {
 
-        return "dataImport/index";
+        return createMV("dataImport/index").addObject("action", getHandler());
     }
 
     @ResponseBody
     @RequestMapping(value = "import/upload")
-    public Object importUpload(CommonsMultipartFile excel) {
+    public Object importUpload(@RequestParam("file") MultipartFile excel) {
+
         //任务模式
         if ( hasTask() ) {
-
+            return success("文件上传成功，导入进度请在导入文件列表中查看");
         }
         //非任务模式
         else {
             //将文件拷贝到指定目录下 FILE_PATH/temp/uuid.xls or xlsx
-            String tempDir = "/temp/";
-            try {
-                excel.transferTo(new File(""));
-            } catch (IOException e) {
-                return error("导入文件获取失败，IO异常");
-            }
-
-            //执行非任务导入
-            Future future = getImportBiz().execute(tempDir);
-
-            //reply
             String uuid = UUID.randomUUID().toString();
+            String tempDir = getTempDir() ;
+            String newFile = tempDir + uuid + getFileEx(excel.getOriginalFilename());
+            try {
+
+                excel.transferTo(new File(newFile));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            //执行非任务导入
+            Future future = getImportBiz().execute(newFile);
+            //reply
             ReplyCache.put(uuid, future);
             JSONResponse response = success("导入成功");
             response.setBusinessValue(uuid);
             return response;
         }
-        return "";
     }
 
-    @RequestMapping(value = "import/update")
-    public Object updateExcelData() {
-        //校验 原错误信息和所有原Excel的值丢弃
-        //getImportBiz().checkForValid();
-        //getImportBiz().verify();
-
-        return null;
+    String getFileEx(String fileName) {
+        return fileName.substring(fileName.lastIndexOf("."));
     }
 
-    @RequestMapping(value = "import/download")
-    public Object importDownload() {
+    @RequestMapping(value = "/import/template/page")
+    public Object importTemplate() {
+        return createMV("dataImport/template")
+                .addObject("datas", getImportBiz().templates());
+    }
 
-        return "";
+    @ResponseBody
+    @RequestMapping(value = "import/download", produces = "application/data;charset=UTF-8")
+    public Object importDownload(HttpServletResponse response, String header) {
+        File file = null;
+        try {
+            Workbook workbook = getImportBiz().exportTemplate(Arrays.stream(StringUtils.split(header, ",")).collect(Collectors.toList()));
+            response.setHeader("Content-Disposition", "attachment; filename=test.xls");
+            OutputStream outputStream = response.getOutputStream();
+            workbook.write(outputStream);
+            return null;
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @RequestMapping(value = "import/viewData")
     public Object importViewData(@RequestParam("cacheId") String cacheId) {
         Future<Reply<T>> future = ReplyCache.get(cacheId);
         ModelAndView mv = createMV("/dataImport/viewData");
-        if ( future.isDone() ) {
-
-        }
         try {
             Reply<T> reply = future.get();
             mv.addObject("errorObjects", reply.getErrorObjects());
             mv.addObject("javaObjects", reply.getJavaObjects());
             mv.addObject("reply", reply);
         } catch (Exception e) {
-            return "error";
+            return error("解析Excel数据失败，请联系系统管理员！");
         }
         return null;
     }
@@ -101,8 +117,7 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         Future<Reply> replyFuture = ReplyCache.get(cacheId);
         try {
             if ( replyFuture != null && !replyFuture.isCancelled()) {
-                boolean success = replyFuture.cancel(Boolean.FALSE);
-                return success ? "success" : "error";
+                replyFuture.cancel(Boolean.FALSE);
             } else {
             }
         } catch (Exception e) {
@@ -118,14 +133,39 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
     public Object importVerify(T value, String header) {
         getImportBiz().checkForValid(value, header);
         if ( value.createQImportError().isHasError() ) {
-            //错误
+            //错误 FIXME 错误数据
+            return error("校验失败");
         }
-        return null;
+        return success("校验成功");
+    }
+
+    protected String getHandler() {
+        RequestMapping requestMapping = this.getClass().getAnnotation(RequestMapping.class);
+        if ( requestMapping != null ) {
+            String[] mapping = requestMapping.value();
+            String hd = mapping[0].replaceFirst("/","");
+            return hd.endsWith("/") ? hd.substring(0, hd.lastIndexOf("/")) : hd;
+        }
+        return StringUtils.EMPTY;
     }
 
     protected abstract AbstractImportBiz getImportBiz();
 
     protected abstract boolean hasTask();
+
+    protected String getTempDir() {
+        //获取当前环境缓存目录
+        String tmpDir = System.getProperty("java.io.tmpdir");
+        if ( StringUtils.isBlank(tmpDir) ) {
+            throw new RuntimeException("can not get cache dir");
+        }
+        tmpDir = tmpDir + "import" + File.separator + "temp";
+        File dir = new File(tmpDir);
+        if ( !dir.exists() ) {
+            dir.mkdirs();
+        }
+        return tmpDir;
+    }
 
     protected ModelAndView createMV(String viewName) {
         return new ModelAndView(viewName);

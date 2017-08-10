@@ -1,15 +1,13 @@
-package net.zdsoft.dataimport;
+package net.zdsoft;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 /**
  * @author shenke
- * @since 2017.08.08
+ * @since 2017.08.09
  */
 @SpringBootApplication
-@EnableWebMvc
 public class Application {
 
     public static void main(String[] args){

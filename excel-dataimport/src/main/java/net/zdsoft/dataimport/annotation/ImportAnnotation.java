@@ -7,16 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by shenke on 2017-7-31.
+ * 标记注解
+ * Created by shenke on 2017-8-10.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-@ImportAnnotation
-public @interface ExcelCell {
-
-    String header();
-
-    String defaultValue() default "";
+@Target(ElementType.ANNOTATION_TYPE)
+public @interface ImportAnnotation {
 
 }

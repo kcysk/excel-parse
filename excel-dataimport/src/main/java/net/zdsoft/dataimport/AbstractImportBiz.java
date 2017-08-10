@@ -1,11 +1,27 @@
 package net.zdsoft.dataimport;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
+import net.zdsoft.dataimport.annotation.AnnotationUtils;
+import net.zdsoft.dataimport.annotation.Exporter;
+import net.zdsoft.dataimport.annotation.ImportAnnotation;
 import net.zdsoft.dataimport.exception.ImportParseException;
 import net.zdsoft.dataimport.verify.AnnotationVerify;
 import net.zdsoft.dataimport.parse.ExcelParserFactory;
 import net.zdsoft.dataimport.parse.Parser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +44,9 @@ import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -44,7 +62,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
     protected Logger logger = LoggerFactory.getLogger(AbstractImportBiz.class);
 
-    private static Map<String,Field> classCache;
+    private Map<String,Field> classCache;
 
     @Autowired private ExcutorHolder excutorHolder;
     @Autowired private ApplicationContext applicationContext;
@@ -182,7 +200,67 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         }
     }
 
-    protected String error(String msg, Object ... values) {
+    /**
+     * 导出模板
+     * @return
+     */
+    Workbook exportTemplate(List<String> headers) {
+        Class<T> tClass = getFirstGenericityType(this.getClass());
+        List<Field> fields = Arrays.stream(tClass.getDeclaredFields())
+                .filter(e->e.getAnnotation(Exporter.class)!=null).filter(e->{
+                    return headers != null ? headers.contains(e.getAnnotation(ExcelCell.class).header()) : Boolean.TRUE;
+                })
+                .collect(Collectors.toList());
+
+        fields.sort(Comparator.comparingInt(e1 -> e1.getAnnotation(Exporter.class).displayOrder()));
+
+        Workbook workbook = new HSSFWorkbook();
+        Sheet sheet = workbook.createSheet();
+        workbook.setSheetName(0, "test");
+        Row row = sheet.createRow(0);
+        //CellRangeAddress rangeAddress = new CellRangeAddress(0, 0, 0 , exporters.size() - 1);
+
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        Font font = workbook.createFont();
+        font.setFontName("宋体");
+        font.setFontHeightInPoints( (short) 10);
+        font.setBold(Boolean.TRUE);
+
+        cellStyle.setFont(font);
+
+        fields.forEach(e->{
+            Cell cell = row.createCell(fields.indexOf(e));
+            cell.setCellType(CellType.STRING);
+            cell.setCellValue(e.getAnnotation(ExcelCell.class).header());
+            cell.setCellStyle(cellStyle);
+        });
+        return workbook;
+    }
+
+    List<JSONObject> templates() {
+        Class<T> tClass = getFirstGenericityType(this.getClass());
+        List<Field> fields = Arrays.stream(tClass.getDeclaredFields())
+                .filter(e->e.getAnnotation(Exporter.class)!=null)
+                .collect(Collectors.toList());
+        List<JSONObject> templates = Lists.newArrayList();
+        fields.forEach(e->{
+            JSONObject data = new JSONObject();
+            Exporter exporter = e.getAnnotation(Exporter.class);
+            ExcelCell excelCell = e.getAnnotation(ExcelCell.class);
+            data.put(Exporter.HEADER, excelCell.header());
+            data.put(Exporter.CHECKED, exporter.defaultChecked());
+            String type = e.getType().equals(Date.class) ? "日期型 ": e.getType().equals(String.class) ? "字符型 " : "数字型 ";
+            data.put(Exporter.DESCRIPTION, type + exporter.description());
+            data.put(Exporter.EXAMPLE, exporter.example());
+            templates.add(data);
+        });
+        return templates;
+    }
+
+    private String error(String msg, Object ... values) {
         for (Object value : values) {
             msg = msg.replaceFirst("\\{\\}", String.valueOf(value));
         }
