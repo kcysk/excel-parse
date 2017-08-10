@@ -2,10 +2,16 @@ package net.zdsoft.dataimport.freemarker;
 
 import freemarker.ext.beans.HashAdapter;
 import freemarker.template.SimpleHash;
+import freemarker.template.TemplateModelAdapter;
 import freemarker.template.TemplateModelException;
+import freemarker.template.TemplateSequenceModel;
+import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Exporter;
+import org.assertj.core.util.Lists;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,4 +44,19 @@ public class ViewDataFreemarkerUtils {
         return "";
     }
 
+    public static String parseJavaObject(Object object, Object headers) {
+        StringBuffer tds = new StringBuffer();
+        List<String> list = (List<String>)headers;
+        Arrays.stream(object.getClass().getDeclaredFields()).forEach(e->{
+            if ( list.contains(e.getAnnotation(ExcelCell.class).header()) ) {
+                try {
+                    e.setAccessible(Boolean.TRUE);
+                    tds.append("<td>").append(e.get(object)).append("</td>");
+                } catch (IllegalAccessException e1) {
+
+                }
+            }
+        });
+        return tds.toString();
+    }
 }

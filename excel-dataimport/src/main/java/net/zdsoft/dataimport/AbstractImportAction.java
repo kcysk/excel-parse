@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
@@ -56,13 +55,12 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
             String tempDir = getTempDir() ;
             String newFile = tempDir + uuid + getFileEx(excel.getOriginalFilename());
             try {
-
                 excel.transferTo(new File(newFile));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             //执行非任务导入
-            Future future = getImportBiz().execute(newFile);
+            Future<Reply<T>> future = getImportBiz().execute(newFile);
             //reply
             ReplyCache.put(uuid, future);
             JSONResponse response = success("导入成功");
@@ -102,13 +100,15 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         ModelAndView mv = createMV("/dataImport/viewData");
         try {
             Reply<T> reply = future.get();
+            mv.addObject("headers", reply.getHeaders());
             mv.addObject("errorObjects", reply.getErrorObjects());
             mv.addObject("javaObjects", reply.getJavaObjects());
             mv.addObject("reply", reply);
         } catch (Exception e) {
+            e.printStackTrace();
             return error("解析Excel数据失败，请联系系统管理员！");
         }
-        return null;
+        return mv;
     }
 
     @ResponseBody

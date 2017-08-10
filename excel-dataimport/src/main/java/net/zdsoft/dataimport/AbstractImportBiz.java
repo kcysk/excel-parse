@@ -121,6 +121,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
             }
             long parseStart = System.currentTimeMillis();
             try {
+                reply = new Reply<T>();
                 DataExcel dataExcel = parser.parse(new FileInputStream(excel));
                 List<DataSheet> dataSheetList = dataExcel.getDataSheetList();
                 if ( dataSheetList.isEmpty() ) {
@@ -132,6 +133,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                 List<T> errorObjects = new ArrayList<>();
                 for (DataSheet dataSheet : dataSheetList) {
                     objects.addAll(transferTo(dataSheet));
+                    reply.setHeaders(Lists.newArrayList(dataSheet.getHeaders()));
                 }
                 objects.forEach(e->{
                     if ( e.createQImportError().isHasError() ) {
@@ -140,7 +142,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                         correctObjects.add(e);
                     }
                 });
-                reply = new Reply<T>();
+
                 reply.setErrorObjects(errorObjects);
                 reply.setJavaObjects(correctObjects);
                 reply.setMessage("解析完成");

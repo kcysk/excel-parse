@@ -3,6 +3,7 @@ package net.zdsoft.dataimport;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class Reply<T extends QImportEntity> {
     @Getter @Setter private List<T> javaObjects;
     @Getter @Setter private List<T> errorObjects;
     @Getter @Setter private Long creationTime;
+    @Getter @Setter private ArrayList<String> headers;
 
     public Reply() {
         this.creationTime = System.currentTimeMillis();
