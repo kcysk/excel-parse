@@ -34,6 +34,14 @@ class BeanUtils {
         return getGenericityType(eClass, 1);
     }
 
+    static <O,E> Class<O> getFirstSuperInterfaceGenericityType(Class<E> eClass) {
+        Type[] types = eClass.getGenericInterfaces();
+        for (Type type : types) {
+            return (Class<O>) ((ParameterizedType)type).getActualTypeArguments()[0];
+        }
+        return null;
+    }
+
     static <O,E> Class<O> getLastGenericityType(Class<E> eClass) {
         return getGenericityType(eClass,Integer.MAX_VALUE);
     }

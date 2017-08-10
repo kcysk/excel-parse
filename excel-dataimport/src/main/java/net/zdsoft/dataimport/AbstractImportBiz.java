@@ -193,7 +193,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         Object value = getFiledValue(t, field);
         //扩展注解校验 调用注解扩展
         for (AnnotationVerify e : annotationVerifies) {
-            boolean ok = e.verify(value, getAnnotationByHeader(header, getFirstGenericityType(e.getClass())), t.createQImportError(), field );
+            boolean ok = e.verify(value, getAnnotationByHeader(header, getFirstSuperInterfaceGenericityType(e.getClass())), t.createQImportError(), field );
             if ( ok ) {
                 break;
             }
