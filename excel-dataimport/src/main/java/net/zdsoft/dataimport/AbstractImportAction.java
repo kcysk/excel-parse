@@ -149,6 +149,16 @@ public abstract class AbstractImportAction<T extends QImportEntity> {
         return StringUtils.EMPTY;
     }
 
+    @RequestMapping(value = "/import/export/template")
+    public Object exportTemplate() {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public Object importList() {
+        return null;
+    }
+
     protected abstract AbstractImportBiz getImportBiz();
 
     protected abstract boolean hasTask();

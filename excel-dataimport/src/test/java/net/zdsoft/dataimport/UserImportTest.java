@@ -2,11 +2,14 @@ package net.zdsoft.dataimport;
 
 import net.zdsoft.ApplicationT;
 import net.zdsoft.UserImportBiz;
+import net.zdsoft.dataimport.cache.ViewCache;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -69,5 +74,22 @@ public class UserImportTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Autowired private ViewCache viewCache;
+
+    @Test
+    public void testViewCache() {
+        String userId = "sss";
+        //for (int i=0; i < 10; i++) {
+        //    ImportRecord importRecord = new ImportRecord();
+        //    importRecord.setCacheId(UUID.randomUUID().toString());
+        //    importRecord.setCreationTime(System.currentTimeMillis());
+        //    importRecord.setOriginFilename("xls");
+        //    viewCache.add(userId, importRecord);
+        //}
+        List<ImportRecord> importRecords = viewCache.getFromCache(userId);
+        Assert.assertNotNull(importRecords);
+        importRecords.forEach(e-> System.out.println(e.getCacheId()));
     }
 }
