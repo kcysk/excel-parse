@@ -1,19 +1,32 @@
 package net.zdsoft.dataimport.cache;
 
-import com.google.common.collect.Maps;
+import com.alibaba.fastjson.JSON;
+import net.zdsoft.dataimport.ImportRecord;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author shenke
  * @since 17-8-5 下午11:07
  */
+@Component
 public class ViewCache {
 
-    Map<String, List<String>> headerCache = Maps.newConcurrentMap();
+    @Autowired private RedisTemplate redisTemplate;
 
-    public List<String> getHeaders(String tClassName) {
-        return headerCache.get(tClassName);
+    static final String KEY = "key_import_record_";
+
+    public List<ImportRecord> getFromCache(String userId) {
+        List<Object> object = redisTemplate.opsForList().range(KEY + userId, 0, 20);
+
+        return JSON.parseArray(object.toString(), ImportRecord.class);
+    }
+
+    public List<ImportRecord> add(String userId, ImportRecord importRecord) {
+        //redisTemplate.opsForList().
+        return null;
     }
 }
