@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,11 +39,12 @@ public abstract class AbstractImportAction {
 
     @Autowired protected ExcutorHolder excutorHolder;
     @Autowired private ViewCache viewCache;
+    @Autowired private ReplyCache replyCache;
 
     @RequestMapping(value = "import/index")
     public Object importIndex() {
 
-        return createMV("dataImport/index").addObject("action", getHandler());
+        return createMV("dataImport/index");
     }
 
     @ResponseBody
@@ -66,8 +68,14 @@ public abstract class AbstractImportAction {
             }
             //执行非任务导入
             Future<Reply> future = getImportBiz().execute(newFile);
+            ImportRecord importRecord = new ImportRecord();
+            importRecord.setCacheId(uuid);
+            importRecord.setCreationTime(new Date());
+            importRecord.setStateCode(ImportState.WAIT.getCode());
+            importRecord.setOriginFilename(excel.getOriginalFilename());
+            viewCache.add("userId", importRecord);
             //reply
-            ReplyCache.put(uuid, future);
+            replyCache.put(uuid, future);
             JSONResponse response = success("导入成功");
             response.setBusinessValue(uuid);
             return response;
@@ -101,7 +109,7 @@ public abstract class AbstractImportAction {
 
     @RequestMapping(value = "import/viewData")
     public Object importViewData(@RequestParam("cacheId") String cacheId) {
-        Future<Reply> future = ReplyCache.get(cacheId);
+        Future<Reply> future = replyCache.get(cacheId);
         ModelAndView mv = createMV("/dataImport/viewData");
         try {
             Reply reply = future.get();
@@ -119,7 +127,7 @@ public abstract class AbstractImportAction {
     @ResponseBody
     @RequestMapping(value = "import/cancel")
     public Object importCancel(@RequestParam("cacheId") String cacheId) {
-        Future<Reply> replyFuture = ReplyCache.get(cacheId);
+        Future<Reply> replyFuture = replyCache.get(cacheId);
         try {
             if ( replyFuture != null && !replyFuture.isCancelled()) {
                 replyFuture.cancel(Boolean.FALSE);
@@ -128,7 +136,7 @@ public abstract class AbstractImportAction {
         } catch (Exception e) {
             logger.error("cancel import error {}", e);
         } finally {
-            ReplyCache.remove(cacheId); // remove之后页面切勿再次取值，否则可能造成状态错误
+            replyCache.remove(cacheId); // remove之后页面切勿再次取值，否则可能造成状态错误
         }
         return success("操作成功");
     }
@@ -144,16 +152,6 @@ public abstract class AbstractImportAction {
         return success("校验成功");
     }
 
-    protected String getHandler() {
-        RequestMapping requestMapping = this.getClass().getAnnotation(RequestMapping.class);
-        if ( requestMapping != null ) {
-            String[] mapping = requestMapping.value();
-            String hd = mapping[0].replaceFirst("/","");
-            return hd.endsWith("/") ? hd.substring(0, hd.lastIndexOf("/")) : hd;
-        }
-        return StringUtils.EMPTY;
-    }
-
     @RequestMapping(value = "/import/export/template")
     public Object exportTemplate() {
 
@@ -165,9 +163,12 @@ public abstract class AbstractImportAction {
         List<ImportRecord> importRecordList = viewCache.getFromCache(userId);
         Optional<List<ImportRecord>> records = Optional.ofNullable(importRecordList);
         records.orElse(Lists.newArrayList()).forEach(importRecord -> {
-            importRecord.setState(importRecord.isDone() ? ImportState.DONE.getState() : ReplyCache.getState(importRecord.getCacheId()).getState() );
+            if ( importRecord.getStateCode() == ImportState.WAIT.getCode() ) {
+                ImportState importState = replyCache.getState(importRecord.getCacheId());
+                viewCache.update(userId, importState, importRecord);
+            }
         });
-        return createMV("").addObject("importRecords", importRecordList);
+        return createMV("dataImport/records").addObject("importRecords", importRecordList);
     }
 
     protected abstract AbstractImportBiz getImportBiz();
@@ -180,10 +181,13 @@ public abstract class AbstractImportAction {
         if ( StringUtils.isBlank(tmpDir) ) {
             throw new RuntimeException("can not get cache dir");
         }
-        tmpDir = tmpDir + "import" + File.separator + "temp";
+        tmpDir = tmpDir + "import" + File.separator + "temp" + File.separator;
         File dir = new File(tmpDir);
         if ( !dir.exists() ) {
-            dir.mkdirs();
+            boolean mkdirs = dir.mkdirs();
+            if ( !mkdirs ) {
+                throw new IllegalArgumentException("无法创建临时目录，请重新指定目录或者给予写权限");
+            }
         }
         return tmpDir;
     }

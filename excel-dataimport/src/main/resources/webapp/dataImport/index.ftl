@@ -72,74 +72,8 @@
                     </div>
 
                     <!-- 导入数据表格开始 -->
-                    <table class="table table-bordered table-striped table-hover">
-                        <thead>
-                        <tr>
-                            <th>序号</th>
-                            <th>导入文件名</th>
-                            <th>导入状态</th>
-                            <th>导入时间</th>
-                            <th>失败数据条数</th>
-                            <th>操作</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>教师信息.xls</td>
-                            <td>
-                                <p class="import-state import-state-current">导入中...</p>
-                            </td>
-                            <td>2016-08-11 8:00</td>
-                            <td>0/12</td>
-                            <td>
-                                <a class="red" href="#">
-                                    <i class="ace-icon fa fa-close bigger-130"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>学生成绩信息.xls</td>
-                            <td>
-                                <p class="import-state import-state-waiting">排队中，前面还有<span>5</span>个文件</p>
-                            </td>
-                            <td>2016-08-11 8:00</td>
-                            <td>0/12</td>
-                            <td>
-                                <a class="red" href="#">
-                                    <i class="ace-icon fa fa-close bigger-130"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td>学生成绩信息.xls</td>
-                            <td>
-                                <p class="import-state import-state-success">导入成功</p>
-                            </td>
-                            <td>2016-08-11 8:00</td>
-                            <td>0/12</td>
-                            <td>
-
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>4</td>
-                            <td>学生成绩信息学生成绩信息.xls</td>
-                            <td>
-                                <p class="import-state import-state-failed">导入失败</p>
-                            </td>
-                            <td>2016-08-11 8:00</td>
-                            <td>0/12</td>
-                            <td>
-                                <a class="red" href="#">
-                                    <i class="ace-icon fa fa-download bigger-130"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table><!-- 导入数据表格结束 -->
+                    <div id="records"></div>
+                    <!-- 导入数据表格结束 -->
                     <!-- PAGE CONTENT ENDS -->
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -159,6 +93,8 @@
 <!--[if !IE]> -->
 <script src="${request.contextPath}/webjarsLocator/jquery/jquery.js"></script>
 <script src="${request.contextPath}/webjarsLocator/layer/layer.js"></script>
+<script src="${request.contextPath}/webjarsLocator/js/sockjs.min.js"></script>
+<script src="${request.contextPath}/webjarsLocator/js/stomp.min.js"></script>
 
 <!-- <![endif]-->
 
@@ -172,7 +108,7 @@
         });
 
         $("#btn-download").unbind().bind("click",function () {
-            $("#layer-common").load("${request.contextPath}/${action}/import/template/page", function () {
+            $("#layer-common").load("${request.contextPath}/${action!}import/template/page", function () {
                 var index = layer.open({
                     type: 1,
                     title:"模板下载",
@@ -184,7 +120,7 @@
                         $("#layer-common").find("input[name='header']:checked").each(function () {
                             headers.push($(this).val());
                         })
-                        location.href = "${request.contextPath}/${action}/import/download?header=" + headers;
+                        location.href = "${request.contextPath}/${action!}import/download?header=" + headers;
                     },
                     btn2:function (index) {
                         layer.close(index);
@@ -200,7 +136,7 @@
             formData.append("name", "excel");
             formData.append("file", $("#file-input")[0].files[0]);
             $.ajax({
-                url : "${request.contextPath}/${action}/import/upload",
+                url : "${request.contextPath}/${action!}import/upload",
                 data:formData,
                 type: 'post',
                 processData: false,
@@ -209,16 +145,22 @@
                 success:function (data) {
                     if ( data.success ) {
                         layer.msg("文件上传成功，稍后请在列表中查看导入数据")
+                        loadRecords();
                     }
                 }
             })
         });
+        loadRecords();
     });
 
     function resetFilePosition() {
         $("#file-input").css({"position":"absolute","-moz-opacity":"0","opacity":"0","filter":"alpha(opacity=0)","cursor":"pointer","width":$("#upload-btn").width() +20,"height":$("#upload-btn").height()+8});
         $("#file-input").offset({"left":$("#upload-btn").offset().left});
         $("#file-input").css({"display":""});
+    }
+
+    function loadRecords() {
+        $("#records").load("${request.contextPath}/${action!}import/list/page?userId=userId");
     }
 </script>
 

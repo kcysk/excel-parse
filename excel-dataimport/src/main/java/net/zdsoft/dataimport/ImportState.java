@@ -2,20 +2,44 @@ package net.zdsoft.dataimport;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author shenke
  * @@since 17-8-10 下午11:51
  */
 public enum ImportState {
 
-    WAIT("等待中"),
-    DONE("已完成"),
-    ING("正在执行"),
-    ERROR("错误");
+    WAIT(1,"等待中"),
+    @Deprecated
+    ING(2,"正在执行"),
+    DONE(3,"解析完成"),
+    CANCEL(4, "已取消"),
+    ERROR(-1,"解析出错");
 
     @Getter private String state;
+    @Getter private int code;
 
-    ImportState(String state) {
+    ImportState(int code, String state) {
+        this.code = code;
         this.state = state;
+    }
+
+    private static final Map<Integer, ImportState> codeMap = new HashMap<Integer, ImportState>(){
+        {
+            put(WAIT.getCode(), WAIT);
+            put(ING.getCode(), ING);
+            put(DONE.getCode(), DONE);
+            put(CANCEL.getCode(), CANCEL);
+            put(ERROR.getCode(), ERROR);
+        }
+    };
+    static {
+
+    }
+
+    public static ImportState fromCode(int code) {
+        return codeMap.get(code);
     }
 }

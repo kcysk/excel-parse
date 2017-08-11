@@ -3,6 +3,8 @@ package net.zdsoft.dataimport;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 /**
  * 导入记录
  * @author shenke
@@ -11,10 +13,12 @@ import lombok.Setter;
 public class ImportRecord {
 
     @Getter @Setter private String fileName;
-    @Getter @Setter private long creationTime;
+    @Getter @Setter private Date creationTime;
     @Getter @Setter private String originFilename;
-    @Getter @Setter private boolean done;
     @Getter @Setter private String cacheId;
-    @Getter @Setter private String state;
+    @Getter @Setter private int stateCode;
 
+    @Getter @Setter private String stateMsg; //状态显示
+
+    @Getter @Setter private long redisIndex;
 }

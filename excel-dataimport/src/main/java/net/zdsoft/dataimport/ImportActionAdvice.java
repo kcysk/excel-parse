@@ -1,12 +1,18 @@
 package net.zdsoft.dataimport;
 
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,13 +26,42 @@ public class ImportActionAdvice {
 
     public static final String ACTION_NAME = "actionName";
 
-    @After(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
+    private static final String ACTION = "action"; //page
+
+    @Before(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
     public void execute(JoinPoint joinPoint) {
         Class<?> action = joinPoint.getTarget().getClass();
-        RequestMapping requestMapping = action.getAnnotation(RequestMapping.class);
-        String[] values = requestMapping.value();
-        getCurrentRequest().setAttribute(ACTION_NAME, values[0]);
+
+        getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
     }
+
+    @Pointcut(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
+    public void exeuteActionNamePointcut() {
+
+    }
+
+    @Around(value = "exeuteActionNamePointcut()")
+    public Object exeuteActionName(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        Class<?> action = proceedingJoinPoint.getTarget().getClass();
+        Object returnVal = proceedingJoinPoint.proceed();
+        if ( returnVal != null && returnVal instanceof ModelAndView ) {
+            ((ModelAndView)returnVal).addObject(ACTION, getActionName(action) + "/");
+        }
+        return returnVal;
+    }
+
+    private String getActionName(Class<?> action) {
+        RequestMapping requestMapping = action.getAnnotation(RequestMapping.class);
+        if ( requestMapping != null ) {
+            String[] values = requestMapping.value();
+            if ( values[0].startsWith("/")) {
+                return values[0].replaceFirst("/", "");
+            }
+            return values[0];
+        }
+        return "";
+    }
+
 
     private HttpServletRequest getCurrentRequest() {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

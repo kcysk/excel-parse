@@ -74,6 +74,9 @@ public class FreemarkerEx {
         @Override
         public Object deserialize(byte[] bytes) throws SerializationException {
             Object obj = null;
+            if ( bytes == null ) {
+                return obj;
+            }
             try {
                 obj = JSON.parseObject(new String(bytes));
             } catch (ClassCastException e){

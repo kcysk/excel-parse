@@ -143,7 +143,16 @@
           <artifactId>font-awesome</artifactId>
           <version>4.6.3</version>
         </dependency>
-
+        <dependency>
+          <groupId>org.webjars.bower</groupId>
+          <artifactId>socket.io-client</artifactId>
+          <version>2.0.3</version>
+        </dependency>
+        <dependency>
+          <groupId>org.webjars.bower</groupId>
+          <artifactId>socket.io</artifactId>
+          <version>2.0.3</version>
+        </dependency>
       </dependencies>
     </dependencyManagement>
 

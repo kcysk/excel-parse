@@ -151,6 +151,14 @@
             <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>socket.io-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>socket.io</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
