@@ -159,7 +159,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
             } finally {
                 if ( reply.getGlobeError() != null ) {
                     reply.setImportState(ImportState.DONE);
-                    reply.notifyClient(ImportState.DONE.getCode(), "数据解析教研完成");
+                    reply.notifyClient(ImportState.DONE.getCode(), "数据解析校验完成");
                 }
             }
             //更新生成时间，延长存活时间
