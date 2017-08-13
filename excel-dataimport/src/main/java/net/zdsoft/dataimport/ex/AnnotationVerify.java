@@ -1,4 +1,4 @@
-package net.zdsoft.dataimport.verify;
+package net.zdsoft.dataimport.ex;
 
 import net.zdsoft.dataimport.biz.QImportError;
 

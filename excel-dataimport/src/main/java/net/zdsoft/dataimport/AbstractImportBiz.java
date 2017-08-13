@@ -6,8 +6,9 @@ import net.zdsoft.dataimport.biz.ImportState;
 import net.zdsoft.dataimport.biz.QImportEntity;
 import net.zdsoft.dataimport.biz.QImportError;
 import net.zdsoft.dataimport.biz.Reply;
+import net.zdsoft.dataimport.ex.ValueTransfer;
 import net.zdsoft.dataimport.exception.ImportParseException;
-import net.zdsoft.dataimport.verify.AnnotationVerify;
+import net.zdsoft.dataimport.ex.AnnotationVerify;
 import net.zdsoft.dataimport.parse.ExcelParserFactory;
 import net.zdsoft.dataimport.parse.Parser;
 import org.apache.commons.lang3.StringUtils;
@@ -67,8 +68,10 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
     @Autowired private ApplicationContext applicationContext;
 
     private List<AnnotationVerify> annotationVerifies = Lists.newArrayList();
+    private List<ValueTransfer> valueTransfers = Lists.newArrayList();
 
     private AnnotationVerify<Valid> validAnnotationVerify;
+    private ValueTransfer valueTransfer;
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -76,8 +79,12 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         initAnnotationVerifyInterceptors();
     }
 
-    public void setValidAnnotationVerify(AnnotationVerify<Valid> validAnnotationVerify) {
+    protected void setValidAnnotationVerify(AnnotationVerify<Valid> validAnnotationVerify) {
         this.validAnnotationVerify = validAnnotationVerify;
+    }
+
+    protected void setValueTransfer(ValueTransfer valueTransfer) {
+        this.valueTransfer = valueTransfer;
     }
 
     private void initAnnotationCache() {
@@ -93,9 +100,21 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         }
         //默认校验
         if ( this.validAnnotationVerify == null ) {
-            annotationVerifies.add(new ValidAnnotationVerify());
+            this.validAnnotationVerify = new ValidAnnotationVerify();
         }
+        annotationVerifies.add(this.validAnnotationVerify);
         annotationVerifies.sort(Comparator.comparingInt(AnnotationVerify::order));
+
+        //转换接口
+        Map<String, ValueTransfer> valueTransferMap = BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext,ValueTransfer.class, Boolean.TRUE, Boolean.TRUE);
+        if ( valueTransferMap != null && valueTransferMap.size() > 0 ) {
+            valueTransfers.addAll(valueTransferMap.values());
+        }
+        if ( valueTransfer == null ) {
+            this.valueTransfer = new DefaultTransfer();
+        }
+        valueTransfers.add(this.valueTransfer);
+        valueTransfers.sort(Comparator.comparing(ValueTransfer::order));
     }
 
     private void initDadaCell(List<DataCell> dataCells) {
@@ -184,7 +203,13 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
             T t = newBean(getFirstGenericityType(this.getClass()));
             QImportError qImportError = t.createQImportError();
             for (DataCell dataCell : dataRow.getDataCellList()) {
-                if (!setProperty(t, dataCell.getFieldName(), dataCell.getData()) ){
+                Object value = null;
+                for (ValueTransfer transfer : valueTransfers) {
+                    if ( (value = transfer.transfer(dataCell.getData(), classCache.get(dataCell.getHeader())) ) != null ){
+                        break;
+                    }
+                }
+                if (!setProperty(t, dataCell.getFieldName(), value) ){
                     qImportError.error(dataCell.getFieldName(), "赋值转换失败");
                 }
                 qImportError.value(dataCell.getFieldName(), dataCell.getData());
@@ -342,6 +367,19 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         @Override
         public int order() {
             return 1;
+        }
+    }
+
+    class DefaultTransfer implements ValueTransfer {
+
+        @Override
+        public Object transfer(Object srcValue, Field descField) {
+            return null;
+        }
+
+        @Override
+        public int order() {
+            return Integer.MAX_VALUE;
         }
     }
 }

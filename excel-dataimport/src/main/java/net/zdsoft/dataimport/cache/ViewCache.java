@@ -30,6 +30,7 @@ public class ViewCache {
 
     public List<ImportRecord> getFromCache(String userId) {
         try {
+
             lock.lock();
             List<Object> object = redisTemplate.opsForList().range(KEY + getCurrentAction() + userId, 0, 20);
             return JSON.parseArray(object.toString(), ImportRecord.class);

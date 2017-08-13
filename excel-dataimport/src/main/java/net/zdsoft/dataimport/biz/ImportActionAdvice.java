@@ -28,13 +28,12 @@ public class ImportActionAdvice {
 
     private static final String ACTION = "action"; //page
 
-    //FIXME remove ? need test
-    @Before(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
-    public void execute(JoinPoint joinPoint) {
-        Class<?> action = joinPoint.getTarget().getClass();
-
-        getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
-    }
+    //@Before(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
+    //public void execute(JoinPoint joinPoint) {
+    //    Class<?> action = joinPoint.getTarget().getClass();
+    //
+    //    getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
+    //}
 
     @Pointcut(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
     public void exeuteActionNamePointcut() {
@@ -44,6 +43,7 @@ public class ImportActionAdvice {
     @Around(value = "exeuteActionNamePointcut()")
     public Object exeuteActionName(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         Class<?> action = proceedingJoinPoint.getTarget().getClass();
+        getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
         Object returnVal = proceedingJoinPoint.proceed();
         if ( returnVal != null && returnVal instanceof ModelAndView ) {
             ((ModelAndView)returnVal).addObject(ACTION, getActionName(action) + "/");
