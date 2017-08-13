@@ -1,5 +1,7 @@
 package net.zdsoft.dataimport.parse;
 
+import net.zdsoft.dataimport.ImportState;
+import net.zdsoft.dataimport.Reply;
 import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.core.DataExcel;
 import net.zdsoft.dataimport.core.DataRow;
@@ -32,7 +34,7 @@ public class ExcelParser implements Parser {
     private static Logger logger = LoggerFactory.getLogger(ExcelParser.class);
 
     @Override
-    public DataExcel parse(InputStream inputStream) throws ImportParseException {
+    public DataExcel parse(InputStream inputStream, Reply reply) throws ImportParseException {
         long parseStart = System.currentTimeMillis();
         Workbook workbook = read2Workbook(inputStream);
         if ( workbook == null ) {
@@ -41,6 +43,7 @@ public class ExcelParser implements Parser {
         int sheetNumber = workbook.getNumberOfSheets();
         DataExcel dataExcel = new DataExcel();
         for ( int i=0; i<sheetNumber; i++ ) {
+            reply.notifyClient(ImportState.ING.getCode(), "正在解析第"+ (i + 1) + "个sheet");
             DataSheet dataSheet = parseForDataSheet(workbook.getSheetAt(i));
             dataExcel.addDataSheetIfNotNull(dataSheet);
         }

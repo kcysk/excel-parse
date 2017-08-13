@@ -105,33 +105,37 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         });
     }
 
-    Future<Reply<T>> execute(String filePath) {
-        return excutorHolder.run(() -> {
-            Reply<T> reply = null;
+    Reply<T> execute(String filePath, String id) {
+        final Reply reply = new Reply();
+        reply.setId(id);
+        excutorHolder.run(() -> {
+            reply.setImportState(ImportState.ING);
             Parser parser = ExcelParserFactory.getParser();
             if ( filePath == null ) {
-                reply = Reply.<T>buildGlobeErrorReply("文件路径不合法");
+                reply.setGlobeError("文件路径不合法");
+                logger.error("filePath 不能为空");
                 return reply;
             }
             File excel = new File(filePath);
             if ( !excel.exists() ) {
-                logger.error("文件不存在");
-                reply = Reply.<T>buildGlobeErrorReply("excel不存在");
+                logger.error("文件不存在 {}", filePath);
+                reply.setGlobeError("excel不存在");
                 return reply;
             }
             long parseStart = System.currentTimeMillis();
             try {
-                reply = new Reply<T>();
-                DataExcel dataExcel = parser.parse(new FileInputStream(excel));
+                DataExcel dataExcel = parser.parse(new FileInputStream(excel), reply);
                 List<DataSheet> dataSheetList = dataExcel.getDataSheetList();
                 if ( dataSheetList.isEmpty() ) {
                     logger.error("导入Excle中无数据");
-                    return Reply.buildGlobeErrorReply("导入Excel不包含数据");
+                    reply.setGlobeError("导入Excel不包含数据");
+                    return reply;
                 }
                 List<T> objects = new ArrayList<>();
                 List<T> correctObjects = new ArrayList<>();
                 List<T> errorObjects = new ArrayList<>();
                 for (DataSheet dataSheet : dataSheetList) {
+                    reply.notifyClient(ImportState.ING.getCode(), "正在进行数据转换和校验");
                     objects.addAll(transferTo(dataSheet));
                     reply.setHeaders(Lists.newArrayList(dataSheet.getHeaders()));
                 }
@@ -145,18 +149,25 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
                 reply.setErrorObjects(errorObjects);
                 reply.setJavaObjects(correctObjects);
-                reply.setMessage("解析完成");
                 logger.debug("解析转换耗时：{}s", (System.currentTimeMillis() - parseStart)/1000);
 
             } catch (FileNotFoundException e) {
-                reply = Reply.buildGlobeErrorReply("excel不存在");
+                logger.error("FileNotFound, {}, {}", e.getMessage(), filePath);
+                reply.setGlobeError("excel不存在");
             } catch (ImportParseException e) {
-                reply = Reply.buildGlobeErrorReply(e.getMessage());
+                logger.error("文件解析异常 {}", e.getMessage());
+                reply.setGlobeError(e.getMessage());
+            } finally {
+                if ( reply.getGlobeError() != null ) {
+                    reply.setImportState(ImportState.DONE);
+                    reply.notifyClient(ImportState.DONE.getCode(), "数据解析教研完成");
+                }
             }
             //更新生成时间，延长存活时间
             reply.setCreationTime(System.currentTimeMillis());
             return reply;
         });
+        return reply;
     }
 
     /**

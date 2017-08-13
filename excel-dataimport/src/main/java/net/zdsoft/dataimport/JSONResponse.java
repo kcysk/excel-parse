@@ -15,6 +15,7 @@ public class JSONResponse{
     @Getter private String msg;
     @Getter private boolean success;
     @Getter private Object businessValue;
+    @Setter private int importStateCode;
 
     public JSONResponse setMsg(String msg) {
         this.msg = msg;
@@ -28,6 +29,11 @@ public class JSONResponse{
 
     public JSONResponse setBusinessValue(Object value) {
         this.businessValue = value;
+        return this;
+    }
+
+    public JSONResponse setImportStateCode(int importStateCode) {
+        this.importStateCode = importStateCode;
         return this;
     }
 

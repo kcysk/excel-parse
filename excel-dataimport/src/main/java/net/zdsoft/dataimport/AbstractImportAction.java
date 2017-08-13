@@ -67,7 +67,7 @@ public abstract class AbstractImportAction {
                 throw new RuntimeException(e);
             }
             //执行非任务导入
-            Future<Reply> future = getImportBiz().execute(newFile);
+            Reply reply = getImportBiz().execute(newFile, uuid);
             ImportRecord importRecord = new ImportRecord();
             importRecord.setCacheId(uuid);
             importRecord.setCreationTime(new Date());
@@ -75,7 +75,7 @@ public abstract class AbstractImportAction {
             importRecord.setOriginFilename(excel.getOriginalFilename());
             viewCache.add("userId", importRecord);
             //reply
-            replyCache.put(uuid, future);
+            replyCache.put(uuid, reply);
             JSONResponse response = success("导入成功");
             response.setBusinessValue(uuid);
             return response;
@@ -109,10 +109,9 @@ public abstract class AbstractImportAction {
 
     @RequestMapping(value = "import/viewData")
     public Object importViewData(@RequestParam("cacheId") String cacheId) {
-        Future<Reply> future = replyCache.get(cacheId);
+        Reply reply = replyCache.get(cacheId);
         ModelAndView mv = createMV("/dataImport/viewData");
         try {
-            Reply reply = future.get();
             mv.addObject("headers", reply.getHeaders());
             mv.addObject("errorObjects", reply.getErrorObjects());
             mv.addObject("javaObjects", reply.getJavaObjects());
@@ -127,12 +126,9 @@ public abstract class AbstractImportAction {
     @ResponseBody
     @RequestMapping(value = "import/cancel")
     public Object importCancel(@RequestParam("cacheId") String cacheId) {
-        Future<Reply> replyFuture = replyCache.get(cacheId);
+        Reply reply = replyCache.get(cacheId);
         try {
-            if ( replyFuture != null && !replyFuture.isCancelled()) {
-                replyFuture.cancel(Boolean.FALSE);
-            } else {
-            }
+            //TODO
         } catch (Exception e) {
             logger.error("cancel import error {}", e);
         } finally {

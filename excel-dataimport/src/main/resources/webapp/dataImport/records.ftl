@@ -47,8 +47,8 @@
                 var JSONResponse = JSON.parse(response.body);
                 $('.viewData-btn[cacheId="'+JSONResponse.businessValue+'"]').parent().parent()
                         .find("p.import-state").removeClass("import-state-waiting")
-                        .addClass("import-state-" + (JSONResponse.success ? "success":"failed"))
-                        .text((JSONResponse.success ? "解析完成":"解析出错"));
+                        .addClass("import-state-" + (JSONResponse.importStateCode == 1 ? "waiting" : JSONResponse.importStateCode == 2 ? "current" : JSONResponse.importStateCode == -1 ? "failed" : JSONResponse.importStateCode == 3 ? "success" : "success" ))
+                        .text((JSONResponse.msg));
             });
         });
         return stompClient;
