@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * @author shenke
  * @since 2017.07.31
  */
-class BeanUtils {
+public class BeanUtils {
 
     static  <O,E> Class<O> getGenericityType(Class<E> eClass, int number) {
         Type type = eClass.getGenericSuperclass();
@@ -66,7 +66,7 @@ class BeanUtils {
         return null;
     }
 
-    static Object getProperty(Object obj, Field field) {
+    public static Object getProperty(Object obj, Field field) {
         try {
             return field.get(obj);
         } catch (IllegalAccessException e) {

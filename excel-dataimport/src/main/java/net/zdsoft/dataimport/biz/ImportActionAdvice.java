@@ -1,4 +1,4 @@
-package net.zdsoft.dataimport;
+package net.zdsoft.dataimport.biz;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -28,6 +28,7 @@ public class ImportActionAdvice {
 
     private static final String ACTION = "action"; //page
 
+    //FIXME remove ? need test
     @Before(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
     public void execute(JoinPoint joinPoint) {
         Class<?> action = joinPoint.getTarget().getClass();

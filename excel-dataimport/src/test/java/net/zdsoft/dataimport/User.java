@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Valid;
+import net.zdsoft.dataimport.biz.QImportEntity;
 
 /**
  * @author shenke

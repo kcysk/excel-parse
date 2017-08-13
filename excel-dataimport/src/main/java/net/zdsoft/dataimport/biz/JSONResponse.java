@@ -1,10 +1,8 @@
-package net.zdsoft.dataimport;
+package net.zdsoft.dataimport.biz;
 
 import com.alibaba.fastjson.JSON;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.HashMap;
 
 /**
  * @author shenke

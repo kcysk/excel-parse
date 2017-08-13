@@ -1,6 +1,6 @@
 package net.zdsoft.dataimport.verify;
 
-import net.zdsoft.dataimport.QImportError;
+import net.zdsoft.dataimport.biz.QImportError;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;

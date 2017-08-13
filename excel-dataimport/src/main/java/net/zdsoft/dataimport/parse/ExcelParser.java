@@ -1,7 +1,7 @@
 package net.zdsoft.dataimport.parse;
 
-import net.zdsoft.dataimport.ImportState;
-import net.zdsoft.dataimport.Reply;
+import net.zdsoft.dataimport.biz.ImportState;
+import net.zdsoft.dataimport.biz.Reply;
 import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.core.DataExcel;
 import net.zdsoft.dataimport.core.DataRow;

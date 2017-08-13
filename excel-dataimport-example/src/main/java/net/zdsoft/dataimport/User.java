@@ -5,6 +5,7 @@ import lombok.Setter;
 import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Exporter;
 import net.zdsoft.dataimport.annotation.Valid;
+import net.zdsoft.dataimport.biz.QImportEntity;
 
 import java.util.Date;
 

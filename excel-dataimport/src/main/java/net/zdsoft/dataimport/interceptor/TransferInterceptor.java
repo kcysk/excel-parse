@@ -1,6 +1,6 @@
 package net.zdsoft.dataimport.interceptor;
 
-import net.zdsoft.dataimport.QImportEntity;
+import net.zdsoft.dataimport.biz.QImportEntity;
 import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.core.DataSheet;
 

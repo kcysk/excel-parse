@@ -1,9 +1,9 @@
-package net.zdsoft.dataimport;
+package net.zdsoft.dataimport.biz;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.zdsoft.dataimport.BeanUtils;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ public abstract class QImportError {
         return new ImportFieldError(name);
     }
 
-    protected QImportError error(final String name, String ... error) {
+    public QImportError error(final String name, String ... error) {
         initCache();
         hasError = Boolean.TRUE;
         ImportFieldError importFieldError = errorFiledCache.get(name);
@@ -34,7 +34,7 @@ public abstract class QImportError {
         return this;
     }
 
-    protected void value(String name, Object value) {
+    public void value(String name, Object value) {
         initCache();
         ImportFieldError importFieldError = errorFiledCache.get(name);
         importFieldError.setValue(value);

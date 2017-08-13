@@ -1,9 +1,9 @@
 package net.zdsoft.dataimport.cache;
 
 import com.alibaba.fastjson.JSON;
-import net.zdsoft.dataimport.ImportActionAdvice;
-import net.zdsoft.dataimport.ImportRecord;
-import net.zdsoft.dataimport.ImportState;
+import net.zdsoft.dataimport.biz.ImportActionAdvice;
+import net.zdsoft.dataimport.biz.ImportRecord;
+import net.zdsoft.dataimport.biz.ImportState;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;

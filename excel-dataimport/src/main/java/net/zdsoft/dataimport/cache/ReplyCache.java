@@ -1,8 +1,8 @@
 package net.zdsoft.dataimport.cache;
 
 import com.google.common.collect.Maps;
-import net.zdsoft.dataimport.ImportState;
-import net.zdsoft.dataimport.Reply;
+import net.zdsoft.dataimport.biz.ImportState;
+import net.zdsoft.dataimport.biz.Reply;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

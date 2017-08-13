@@ -1,6 +1,11 @@
 package net.zdsoft.dataimport;
 
 import com.google.common.collect.Lists;
+import net.zdsoft.dataimport.biz.ImportRecord;
+import net.zdsoft.dataimport.biz.ImportState;
+import net.zdsoft.dataimport.biz.JSONResponse;
+import net.zdsoft.dataimport.biz.QImportEntity;
+import net.zdsoft.dataimport.biz.Reply;
 import net.zdsoft.dataimport.cache.ReplyCache;
 import net.zdsoft.dataimport.cache.ViewCache;
 import net.zdsoft.dataimport.process.ExcutorHolder;
@@ -26,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +57,8 @@ public abstract class AbstractImportAction {
 
         //任务模式
         if ( hasTask() ) {
+            //TODO how
+
             return success("文件上传成功，导入进度请在导入文件列表中查看");
         }
         //非任务模式

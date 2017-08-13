@@ -1,5 +1,7 @@
 package net.zdsoft.dataimport;
 
+import net.zdsoft.dataimport.biz.QImportError;
+
 /**
  * @author shenke
  * @since 17-8-6 下午9:54
