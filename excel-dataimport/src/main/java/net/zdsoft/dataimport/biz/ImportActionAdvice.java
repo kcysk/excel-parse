@@ -35,7 +35,7 @@ public class ImportActionAdvice {
     //    getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
     //}
 
-    @Pointcut(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
+    @Pointcut(value = "execution(* net.zdsoft.dataimport.biz.AbstractImportAction.import*(..))")
     public void exeuteActionNamePointcut() {
 
     }

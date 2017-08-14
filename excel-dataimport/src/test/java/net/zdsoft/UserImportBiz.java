@@ -1,6 +1,6 @@
 package net.zdsoft;
 
-import net.zdsoft.dataimport.AbstractImportBiz;
+import net.zdsoft.dataimport.biz.AbstractImportBiz;
 import net.zdsoft.dataimport.User;
 import net.zdsoft.dataimport.exception.ImportBusinessException;
 import org.springframework.stereotype.Service;

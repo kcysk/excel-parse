@@ -2,7 +2,6 @@ package net.zdsoft.dataimport.biz;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.zdsoft.dataimport.BeanUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

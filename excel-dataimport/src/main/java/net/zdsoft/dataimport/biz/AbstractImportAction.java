@@ -1,11 +1,6 @@
-package net.zdsoft.dataimport;
+package net.zdsoft.dataimport.biz;
 
 import com.google.common.collect.Lists;
-import net.zdsoft.dataimport.biz.ImportRecord;
-import net.zdsoft.dataimport.biz.ImportState;
-import net.zdsoft.dataimport.biz.JSONResponse;
-import net.zdsoft.dataimport.biz.QImportEntity;
-import net.zdsoft.dataimport.biz.Reply;
 import net.zdsoft.dataimport.cache.ReplyCache;
 import net.zdsoft.dataimport.cache.ViewCache;
 import net.zdsoft.dataimport.process.ExcutorHolder;

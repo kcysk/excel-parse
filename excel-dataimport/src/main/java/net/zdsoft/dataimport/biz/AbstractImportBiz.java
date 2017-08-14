@@ -1,13 +1,9 @@
-package net.zdsoft.dataimport;
+package net.zdsoft.dataimport.biz;
 
 import com.alibaba.fastjson.JSONObject;
 import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Exporter;
 import net.zdsoft.dataimport.annotation.Valid;
-import net.zdsoft.dataimport.biz.ImportState;
-import net.zdsoft.dataimport.biz.QImportEntity;
-import net.zdsoft.dataimport.biz.QImportError;
-import net.zdsoft.dataimport.biz.Reply;
 import net.zdsoft.dataimport.core.DataCell;
 import net.zdsoft.dataimport.core.DataExcel;
 import net.zdsoft.dataimport.core.DataRow;
@@ -52,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static net.zdsoft.dataimport.BeanUtils.*;
+import static net.zdsoft.dataimport.biz.BeanUtils.*;
 
 /**
  * @author shenke
