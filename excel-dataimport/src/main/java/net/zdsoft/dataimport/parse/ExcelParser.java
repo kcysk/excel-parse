@@ -50,7 +50,7 @@ public class ExcelParser implements Parser {
             DataSheet dataSheet = parseForDataSheet(workbook.getSheetAt(i));
             dataExcel.addDataSheetIfNotNull(dataSheet);
         }
-        logger.debug("解析Excel耗时：{}s", (System.currentTimeMillis() - parseStart)/1000);
+        logger.debug("解析Excel耗时：{}ms", (System.currentTimeMillis() - parseStart));
         return dataExcel;
     }
 
@@ -86,8 +86,8 @@ public class ExcelParser implements Parser {
             if ( i == 0) {
                 List<String> headers = new ArrayList<String>();
                 for (DataCell dataCell : dataRow.getDataCellList()) {
-                    logger.debug("header-{},:[{}]",i,dataCell.getData());
                     if ( dataCell.getData() != null ) {
+                        logger.debug("header:[{}]",dataCell.getData());
                         headers.add(dataCell.getData().toString());
                     }
                 }

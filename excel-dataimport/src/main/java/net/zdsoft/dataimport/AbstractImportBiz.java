@@ -1,16 +1,24 @@
 package net.zdsoft.dataimport;
 
 import com.alibaba.fastjson.JSONObject;
+import net.zdsoft.dataimport.annotation.ExcelCell;
 import net.zdsoft.dataimport.annotation.Exporter;
+import net.zdsoft.dataimport.annotation.Valid;
 import net.zdsoft.dataimport.biz.ImportState;
 import net.zdsoft.dataimport.biz.QImportEntity;
 import net.zdsoft.dataimport.biz.QImportError;
 import net.zdsoft.dataimport.biz.Reply;
-import net.zdsoft.dataimport.ex.ValueTransfer;
-import net.zdsoft.dataimport.exception.ImportParseException;
+import net.zdsoft.dataimport.core.DataCell;
+import net.zdsoft.dataimport.core.DataExcel;
+import net.zdsoft.dataimport.core.DataRow;
+import net.zdsoft.dataimport.core.DataSheet;
 import net.zdsoft.dataimport.ex.AnnotationVerify;
+import net.zdsoft.dataimport.ex.ValueTransfer;
+import net.zdsoft.dataimport.exception.ImportBusinessException;
+import net.zdsoft.dataimport.exception.ImportParseException;
 import net.zdsoft.dataimport.parse.ExcelParserFactory;
 import net.zdsoft.dataimport.parse.Parser;
+import net.zdsoft.dataimport.process.ExcutorHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -29,14 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import net.zdsoft.dataimport.annotation.ExcelCell;
-import net.zdsoft.dataimport.annotation.Valid;
-import net.zdsoft.dataimport.core.DataCell;
-import net.zdsoft.dataimport.core.DataExcel;
-import net.zdsoft.dataimport.core.DataRow;
-import net.zdsoft.dataimport.core.DataSheet;
-import net.zdsoft.dataimport.exception.ImportBusinessException;
-import net.zdsoft.dataimport.process.ExcutorHolder;
 import org.springframework.context.ApplicationContext;
 
 import java.io.File;
@@ -171,7 +171,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
                 reply.setErrorObjects(errorObjects);
                 reply.setJavaObjects(correctObjects);
-                logger.debug("解析转换耗时：{}s", (System.currentTimeMillis() - parseStart)/1000);
+                logger.debug("解析转换耗时：{}ms", (System.currentTimeMillis() - parseStart));
 
             } catch (FileNotFoundException e) {
                 logger.error("FileNotFound, {}, {}", e.getMessage(), filePath);
