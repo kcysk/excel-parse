@@ -13,7 +13,7 @@ public class JSONResponse{
     @Getter private String msg;
     @Getter private boolean success;
     @Getter private Object businessValue;
-    @Setter private int importStateCode;
+    @Getter @Setter private int importStateCode;
 
     public JSONResponse setMsg(String msg) {
         this.msg = msg;

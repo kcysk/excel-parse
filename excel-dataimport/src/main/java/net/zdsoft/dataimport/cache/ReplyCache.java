@@ -26,7 +26,9 @@ public class ReplyCache {
     }
 
     public ImportState getState(String key) {
-        return cache.get(key).getImportState();
+        Reply reply = cache.get(key);
+
+        return reply != null ? reply.getImportState() : null;
     }
 
     public void remove(String key) {

@@ -165,8 +165,9 @@ public abstract class AbstractImportAction {
         List<ImportRecord> importRecordList = viewCache.getFromCache(userId);
         Optional<List<ImportRecord>> records = Optional.ofNullable(importRecordList);
         records.orElse(Lists.newArrayList()).forEach(importRecord -> {
-            if ( importRecord.getStateCode() == ImportState.WAIT.getCode() ) {
+            if ( importRecord.getStateCode() == ImportState.WAIT.getCode() || importRecord.getStateCode() == ImportState.ING.getCode()) {
                 ImportState importState = replyCache.getState(importRecord.getCacheId());
+                if ( importState != null)
                 viewCache.update(userId, importState, importRecord);
             }
         });

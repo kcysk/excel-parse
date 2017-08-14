@@ -20,17 +20,18 @@ public class Reply<QT extends QImportEntity> {
 
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    private static TaskReply taskReply;
+    private TaskReply taskReply;
 
     public Reply() {
         this.creationTime = System.currentTimeMillis();
         this.importState = ImportState.WAIT;
+        taskReply = bulidTaskReply();
     }
 
     public static Reply buildGlobeErrorReply(String globeError) {
         Reply reply = new Reply();
         reply.setGlobeError(globeError);
-        Reply.taskReply = bulidTaskReply();
+        reply.taskReply = bulidTaskReply();
         return reply;
     }
 
@@ -39,30 +40,30 @@ public class Reply<QT extends QImportEntity> {
     }
 
     public Reply setJavaObjects(List<QT> javaObjects) {
-        Reply.taskReply.setJavaObjects(javaObjects);
+        this.taskReply.setJavaObjects(javaObjects);
         return this;
     }
 
     public List<QT> getJavaObjects() {
-        return Reply.taskReply.getJavaObjects();
+        return this.taskReply.getJavaObjects();
     }
 
     public Reply setErrorObjects(List<QT> errorObjects) {
-        Reply.taskReply.setErrorObjects(errorObjects);
+        this.taskReply.setErrorObjects(errorObjects);
         return this;
     }
 
     public List<QT> getErrorObjects() {
-        return Reply.taskReply.getErrorObjects();
+        return this.taskReply.getErrorObjects();
     }
 
     public Reply setHeaders(List<String> headers) {
-        Reply.taskReply.setHeaders(headers);
+        this.taskReply.setHeaders(headers);
         return this;
     }
 
     public List<String> getHeaders() {
-        return Reply.taskReply.getHeaders();
+        return this.taskReply.getHeaders();
     }
 
     /**

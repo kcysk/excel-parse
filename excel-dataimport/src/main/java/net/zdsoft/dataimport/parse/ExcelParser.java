@@ -41,6 +41,9 @@ public class ExcelParser implements Parser {
             return null;
         }
         int sheetNumber = workbook.getNumberOfSheets();
+        if ( sheetNumber > 1) {
+            throw new ImportParseException("目前只支持单工作表导入，请删除多余的工作表");
+        }
         DataExcel dataExcel = new DataExcel();
         for ( int i=0; i<sheetNumber; i++ ) {
             reply.notifyClient(ImportState.ING.getCode(), "正在解析第"+ (i + 1) + "个sheet");
@@ -66,7 +69,7 @@ public class ExcelParser implements Parser {
         return workbook;
     }
 
-    public DataSheet parseForDataSheet(Sheet sheet) {
+    public DataSheet parseForDataSheet(Sheet sheet) throws ImportParseException {
         if ( sheet == null ) {
             return null;
         }
@@ -74,12 +77,19 @@ public class ExcelParser implements Parser {
         int rowNumber = sheet.getPhysicalNumberOfRows();
 
         for ( int i=0; i<rowNumber; i++) {
-            DataRow dataRow = parseForDataRow(sheet.getRow(i), i == 0 ? null : dataSheet.getHeaders().toArray(new String[0]) );
+            DataRow dataRow = null;
+            try {
+                dataRow = parseForDataRow(sheet.getRow(i), i == 0 ? null : dataSheet.getHeaders().toArray(new String[0]) );
+            } catch (ImportParseException e) {
+                throw new ImportParseException(sheet.getSheetName(), i, e.getDataCell(), e.getMessage());
+            }
             if ( i == 0) {
                 List<String> headers = new ArrayList<String>();
                 for (DataCell dataCell : dataRow.getDataCellList()) {
                     logger.debug("header-{},:[{}]",i,dataCell.getData());
-                    headers.add(dataCell.getData().toString());
+                    if ( dataCell.getData() != null ) {
+                        headers.add(dataCell.getData().toString());
+                    }
                 }
                 dataSheet.setHeaders(headers);
             } else {
@@ -89,7 +99,7 @@ public class ExcelParser implements Parser {
         return dataSheet;
     }
 
-    public DataRow parseForDataRow(Row row, String[] headers) {
+    public DataRow parseForDataRow(Row row, String[] headers) throws ImportParseException {
         if ( row == null ) {
             return null;
         }
@@ -106,7 +116,15 @@ public class ExcelParser implements Parser {
                 emptyRow = Boolean.FALSE;
             }
             if ( headers != null && headers.length > 0 ) {
-                dataCell.setHeader(headers[i]);
+                if ( i < headers.length ) { // arrayIndexOutBoundException
+                    dataCell.setHeader(headers[i]);
+                } else {
+                    if ( dataCell.getData() == null) {
+                        break;
+                    } else {
+                        throw new ImportParseException(i+1,"导入数据未按指定模板填写数据");
+                    }
+                }
             }
             dataRow.addDataCellIfNotnull(dataCell);
         }

@@ -15,7 +15,7 @@
                 <td>${r_index}</td>
                 <td>${r.originFilename!}</td>
                 <td>
-                    <p class="import-state import-state-<#if r.stateCode?default(0) == 1>waiting<#elseif r.stateCode?default(0) == 3>success<#elseif r.stateCode?default(0) == 4>current<#elseif r.stateCode?default(0) == -1>failed</#if>">${r.stateMsg!}</p>
+                    <p class="import-state import-state-<#if r.stateCode?default(0) == 1>waiting<#elseif r.stateCode?default(0) == 2>current<#elseif r.stateCode?default(0) == 3>success<#elseif r.stateCode?default(0) == 4>current<#elseif r.stateCode?default(0) == -1>failed</#if>">${r.stateMsg!}</p>
                 </td>
                 <td>${r.creationTime?string("yyyy-MM-dd HH:mm")}</td>
                 <td>

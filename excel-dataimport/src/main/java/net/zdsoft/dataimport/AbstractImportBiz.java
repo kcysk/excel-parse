@@ -157,6 +157,10 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                     objects.addAll(transferTo(dataSheet));
                     reply.setHeaders(Lists.newArrayList(dataSheet.getHeaders()));
                 }
+                if ( reply.getHeaders().size() > getAnnotationWithAnnotation(getFirstGenericityType(this.getClass()), ExcelCell.class).size() ) {
+                    reply.setGlobeError("模板错误");
+                    return reply;
+                }
                 objects.forEach(e->{
                     if ( e.createQImportError().isHasError() ) {
                         errorObjects.add(e);
@@ -174,9 +178,11 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
                 reply.setGlobeError("excel不存在");
             } catch (ImportParseException e) {
                 logger.error("文件解析异常 {}", e.getMessage());
+                reply.setGlobeError(e.getParseErrorMessage());
+            } catch (Exception e){
                 reply.setGlobeError(e.getMessage());
-            } finally {
-                if ( reply.getGlobeError() != null ) {
+            }finally {
+                if ( reply.getGlobeError() == null ) {
                     reply.setImportState(ImportState.DONE);
                     reply.notifyClient(ImportState.DONE.getCode(), "数据解析校验完成");
                 }
@@ -374,7 +380,8 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
         @Override
         public Object transfer(Object srcValue, Field descField) {
-            return null;
+            //TODO
+            return srcValue;
         }
 
         @Override
