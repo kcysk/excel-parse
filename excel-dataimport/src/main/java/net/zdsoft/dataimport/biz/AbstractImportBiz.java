@@ -226,6 +226,27 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         return os;
     }
 
+    boolean importConfirm(Reply reply) {
+        List<T> os = reply.getJavaObjects();
+        try {
+            if ( globeVerify(os) ){
+                importData(os);
+                return Boolean.TRUE;
+            } else{
+                return Boolean.FALSE;
+            }
+        } catch (ImportBusinessException e) {
+            T t = os.get(e.getIndex());
+            os.remove(t);
+            t.createQImportError().error(e.getField(), e.getMessage());
+            reply.setErrorObjects(new ArrayList(){{add(t);}});
+            return Boolean.FALSE;
+        } catch (Exception e) {
+            reply.setGlobeError(e.getMessage());
+            return Boolean.FALSE;
+        }
+    }
+
     /**
      * 注解校验
      * @param t
@@ -342,6 +363,13 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
         Field field = classCache.get(header);
         return field.getAnnotation(annotation);
     }
+
+    /**
+     * 全局性校验，子类覆盖
+     * @param os
+     * @return false， 出现错误，页面回显 true正常
+     */
+    public abstract boolean globeVerify(List<T> os);
 
     /**
      * 执行业务操作(保存等)，子类必须重写该方法

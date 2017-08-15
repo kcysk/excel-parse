@@ -143,16 +143,23 @@ public abstract class AbstractImportAction {
     public Object importVerify(Object value, String header) {
         getImportBiz().checkForValid((QImportEntity) value, header);
         if ( ((QImportEntity)value).createQImportError().isHasError() ) {
-            //错误 FIXME 错误数据
+            //错误 FIXME 错误数据回显 是否
             return error("校验失败");
         }
         return success("校验成功");
     }
 
-    @RequestMapping(value = "/import/export/template")
-    public Object exportTemplate() {
-
-        return new ResponseEntity<>(HttpStatus.OK);
+    @ResponseBody
+    @RequestMapping(value = "import/confirm")
+    public Object importConfirm(String cacheId) {
+        Reply reply = replyCache.get(cacheId);
+        reply.setGlobeError("");
+        if ( getImportBiz().importConfirm(reply) ){
+            return success("导入成功");
+        } else {
+            //TODO 区分可修改性错误，数据库错误
+            return error("导入失败"); //页面打开数据展示页面，展示错误数据，用户修改
+        }
     }
 
     @RequestMapping(value = "import/list/page")
