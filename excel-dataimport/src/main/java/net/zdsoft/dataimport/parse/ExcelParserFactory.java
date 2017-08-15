@@ -6,7 +6,23 @@ package net.zdsoft.dataimport.parse;
  */
 public class ExcelParserFactory {
 
+    private volatile static ExcelParser excelParser;
+
     public static Parser getParser() {
-        return new ExcelParser();
+
+        try {
+            if ( excelParser != null ) {
+            }
+            else {
+                synchronized (ExcelParserFactory.class){
+                    if ( excelParser == null ) {
+                        excelParser = new ExcelParser();
+                    }
+                }
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        return excelParser;
     }
 }
