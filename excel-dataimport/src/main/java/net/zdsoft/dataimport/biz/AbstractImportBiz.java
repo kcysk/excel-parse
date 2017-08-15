@@ -17,16 +17,20 @@ import net.zdsoft.dataimport.parse.Parser;
 import net.zdsoft.dataimport.process.ExcutorHolder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.poi.hssf.usermodel.DVConstraint;
+import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataValidation;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddressList;
 import org.assertj.core.util.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -274,9 +278,37 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
             Cell cell = row.createCell(fields.indexOf(e));
             cell.setCellType(CellType.STRING);
             cell.setCellValue(e.getAnnotation(ExcelCell.class).header());
+            //下拉选择
+            Exporter exporter = e.getAnnotation(Exporter.class);
+            setSelect(exporter, sheet, fields.indexOf(e));
             cell.setCellStyle(cellStyle);
         });
         return workbook;
+    }
+
+    /**
+     * 该方法的最大不足之处就是数据不能超过128 个
+     * @param exporter
+     * @param sheet
+     * @param col
+     */
+    private void setSelect(Exporter exporter, Sheet sheet, int col) {
+        String[] selectItems = null;
+        //if ( exporter != null && !exporter.mcode().equals("") ){
+        //    List<McodeDetail> mcodeDetails = SUtils.dt(mcodeRemoteService.findAllByMcodeIds(exporter.mcode()), McodeDetail.class );
+        //    mcodeDetails.sort(Comparator.comparing(McodeDetail::getDisplayOrder));
+        //    selectItems = mcodeDetails.stream().map(McodeDetail::getMcodeContent).collect(Collectors.toList()).toArray(new String[0]);
+        //}
+        if ( exporter != null && !exporter.selectItems().equals("") ) {
+            selectItems = exporter.selectItems();
+        }
+        if ( selectItems != null ) {
+            //设置下拉范围 1-65535行
+            CellRangeAddressList cellRangeAddressList = new CellRangeAddressList(1, 65535, col, col);
+            DVConstraint dvConstraint = DVConstraint.createExplicitListConstraint(selectItems);
+            DataValidation dataValidation = new HSSFDataValidation(cellRangeAddressList, dvConstraint);
+            sheet.addValidationData(dataValidation);
+        }
     }
 
     List<JSONObject> templates() {
