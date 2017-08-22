@@ -18,4 +18,9 @@ public class UserImportBiz extends AbstractImportBiz<User> {
     public void importData(List<User> os) throws ImportBusinessException {
 
     }
+
+    @Override
+    public boolean globeVerify(List<User> os) {
+        return false;
+    }
 }

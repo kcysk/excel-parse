@@ -124,7 +124,7 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
     }
 
     Reply<T> execute(String filePath, String id) {
-        final Reply reply = new Reply();
+        final Reply<T> reply = new Reply<T>();
         reply.setId(id);
         excutorHolder.run(() -> {
             reply.setImportState(ImportState.ING);
@@ -199,8 +199,6 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
      * @see QImportEntity#createQImportError()
      * @see QImportError
      *
-     * @param dataSheet
-     * @return
      */
     public List<T> transferTo(DataSheet dataSheet) {
         List<T> os = new ArrayList<T>(dataSheet.getDataRowList().size());
@@ -266,7 +264,6 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
     /**
      * 导出模板
-     * @return
      */
     Workbook exportTemplate(List<String> headers) {
         Class<T> tClass = getFirstGenericityType(this.getClass());
@@ -309,9 +306,6 @@ public abstract class AbstractImportBiz<T extends QImportEntity>  implements Ini
 
     /**
      * 该方法的最大不足之处就是数据不能超过128 个
-     * @param exporter
-     * @param sheet
-     * @param col
      */
     private void setSelect(Exporter exporter, Sheet sheet, int col) {
         String[] selectItems = null;
