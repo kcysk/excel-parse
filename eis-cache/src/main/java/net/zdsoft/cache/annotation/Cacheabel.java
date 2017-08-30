@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Inherited
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Cache {
+public @interface Cacheabel {
 
     /**
      * expire time
@@ -25,4 +25,6 @@ public @interface Cache {
     String region() default "";
 
     String condition() default "";
+
+    String[] syncKey() default "";
 }

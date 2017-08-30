@@ -1,0 +1,20 @@
+package net.zdsoft.cache.config;
+
+import net.zdsoft.cache.annotation.EnableCache;
+import org.springframework.context.annotation.ImportAware;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.AnnotationMetadata;
+
+/**
+ * @author shenke
+ * @since 17-8-29下午10:17
+ */
+public abstract class AbstractCacheConfiguration implements ImportAware{
+
+    protected AnnotationAttributes annotationAttributes;
+
+    @Override
+    public void setImportMetadata(AnnotationMetadata importMetadata) {
+        annotationAttributes = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableCache.class.getName(), false));
+    }
+}
