@@ -18,4 +18,5 @@ public class AspectjCacheConfiguration extends AbstractCacheConfiguration{
     public CacheAspectj cacheAspect() {
         return new CacheAspectj();
     }
+
 }

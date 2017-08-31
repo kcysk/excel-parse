@@ -2,28 +2,24 @@ package net.zdsoft.cache.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
  * @author shenke
- * @since 2017.08.30
+ * @since 2017.08.31
  */
 @Documented
-@Inherited
-@Target({ElementType.METHOD})
+@Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CacheClear {
+public @interface CacheSync {
 
-    String key();
+    String[] syncKey() default "";
 
     String region() default "";
 
     String condition() default "";
 
     boolean beforeInvocation() default false;
-
-    String[] syncKey() default "";
 }

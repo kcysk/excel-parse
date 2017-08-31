@@ -25,6 +25,4 @@ public @interface Cacheabel {
     String region() default "";
 
     String condition() default "";
-
-    String[] syncKey() default "";
 }

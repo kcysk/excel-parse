@@ -1,5 +1,6 @@
 package net.zdsoft.cache.ap;
 
+import net.zdsoft.cache.annotation.EnableCache;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {"net.zdsoft.cache.config","net.zdsoft.cache.ap"})
+@EnableCache
 public class ApplicationContext {
 
     public static void main(String[] args){

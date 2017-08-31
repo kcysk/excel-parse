@@ -11,8 +11,6 @@ import java.io.Serializable;
  */
 public class CacheInterceptor implements MethodInterceptor, Serializable {
 
-    private CacheHandler cacheHandler;
-
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
 
@@ -25,7 +23,8 @@ public class CacheInterceptor implements MethodInterceptor, Serializable {
         };
         try {
             //cache逻辑处理
-            return cacheHandler.handle(invokerWrapper, methodInvocation.getThis(), methodInvocation.getMethod(), methodInvocation.getArguments());
+            //return cacheHandler.e(invokerWrapper, methodInvocation.getThis(), methodInvocation.getMethod(), methodInvocation.getArguments());
+            return null;
         } catch (CacheTargetInvoker.CacheTargetThrowableWrapper throwableWrapper) {
             throw throwableWrapper.getOriginal();
         }

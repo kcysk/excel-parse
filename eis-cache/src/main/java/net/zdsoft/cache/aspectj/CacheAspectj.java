@@ -1,6 +1,6 @@
 package net.zdsoft.cache.aspectj;
 
-import net.zdsoft.cache.support.AbstractCacheHandler;
+import net.zdsoft.cache.support.CacheAopExecutor;
 import net.zdsoft.cache.support.CacheTargetInvoker;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -17,7 +17,10 @@ import java.lang.reflect.Method;
  * @since 2017.08.30
  */
 @Aspect
-class CacheAspectj extends AbstractCacheHandler implements DisposableBean{
+class CacheAspectj extends CacheAopExecutor implements DisposableBean{
+
+    public CacheAspectj() {
+    }
 
     @Override
     public void destroy() throws Exception {
@@ -46,7 +49,8 @@ class CacheAspectj extends AbstractCacheHandler implements DisposableBean{
             }
         };
         try {
-            return handle(invoker, joinPoint.getTarget(), method, joinPoint.getArgs());
+
+            return execute(invoker, joinPoint.getTarget(), method, joinPoint.getArgs(), methodSignature.getReturnType());
         } catch (CacheTargetInvoker.CacheTargetThrowableWrapper e) {
             ThrowAny.throwUnchecked(e.getOriginal());
             return null; //never

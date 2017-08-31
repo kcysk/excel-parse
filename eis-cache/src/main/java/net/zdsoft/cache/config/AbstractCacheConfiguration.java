@@ -11,10 +11,11 @@ import org.springframework.core.type.AnnotationMetadata;
  */
 public abstract class AbstractCacheConfiguration implements ImportAware{
 
-    protected AnnotationAttributes annotationAttributes;
+    protected AnnotationAttributes enableCache;
 
     @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
-        annotationAttributes = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableCache.class.getName(), false));
+        enableCache = AnnotationAttributes.fromMap(importMetadata.getAnnotationAttributes(EnableCache.class.getName(), false));
     }
+
 }
