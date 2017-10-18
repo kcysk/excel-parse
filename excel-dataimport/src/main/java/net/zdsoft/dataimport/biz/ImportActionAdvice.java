@@ -1,12 +1,8 @@
 package net.zdsoft.dataimport.biz;
 
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,13 +23,6 @@ public class ImportActionAdvice {
     public static final String ACTION_NAME = "actionName";
 
     private static final String ACTION = "action"; //page
-
-    //@Before(value = "execution(* net.zdsoft.dataimport.AbstractImportAction.import*(..))")
-    //public void execute(JoinPoint joinPoint) {
-    //    Class<?> action = joinPoint.getTarget().getClass();
-    //
-    //    getCurrentRequest().setAttribute(ACTION_NAME, getActionName(action));
-    //}
 
     @Pointcut(value = "execution(* net.zdsoft.dataimport.biz.AbstractImportAction.import*(..))")
     public void exeuteActionNamePointcut() {

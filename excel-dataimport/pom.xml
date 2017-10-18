@@ -8,13 +8,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>excel-dataimport</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
 
     <name>excel-dataimport</name>
     <url>http://maven.apache.org</url>
-    <modules>
-        <module>../excel-dataimport-example</module>
-    </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -169,11 +166,6 @@
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>socket.io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jdmk</groupId>
-            <artifactId>jmxtools</artifactId>
-            <version>1.2.1</version>
         </dependency>
 
     </dependencies>
